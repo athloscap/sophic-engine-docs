@@ -1,122 +1,138 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "theme": "maple",
+  "name": "Sophic Engine",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#4A5D83",
+    "light": "#E6EDF3",
+    "dark": "#2A3141"
   },
   "favicon": "/favicon.svg",
+  "interaction": {
+    "drilldown": false
+  },
+  "api": {
+    "openapi": "https://api.engine.usesophic.com/openapi.json"
+  },
+
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Docs",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Get started",
+            "icon": "play",
             "pages": [
               "index",
-              "quickstart",
-              "development"
+              "security",
+              "changelog"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Accounts",
+            "icon": "wallet",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
+              {
+                "group": "Deposits",
+                "pages": [
+                  "Depositing funds",
+                  "Withdrawing funds"
+                ]
+              },
+              {
+                "group": "Withdrawals",
+                "pages": [
+                  "Placing an order"
+                ]
+              }
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Payments",
+            "icon": "arrow-right-arrow-left",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
+              {
+                "group": "Deposits",
+                "pages": [
+                  "Depositing funds",
+                  "Withdrawing funds"
+                ]
+              },
+              {
+                "group": "Withdrawals",
+                "pages": [
+                  "Placing an order"
+                ]
+              }
             ]
           },
           {
-            "group": "AI tools",
+            "group": "Trading",
+            "icon": "money-bill-trend-up",
             "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              {
+                "group": "Deposits",
+                "pages": [
+                  "Depositing funds",
+                  "Withdrawing funds"
+                ]
+              },
+              {
+                "group": "Withdrawals",
+                "pages": [
+                  "Placing an order"
+                ]
+              }
             ]
           }
         ]
       },
       {
         "tab": "API reference",
-        "groups": [
+        "openapi": "https://api.engine.usesophic.com/openapi.json",
+        "groups": [{
+          "group": "Topics",
+          "pages": [
+            "api-reference/overview",
+            "api-reference/versioning",
+            "api-reference/auth",
+            "api-reference/idempotency",
+            "api-reference/rate-limits",
+            "api-reference/errors"
+          ]},
           {
-            "group": "API documentation",
+            "group": "Authentication",
             "pages": [
-              "api-reference/introduction"
-            ]
-          },
-          {
-            "group": "Endpoint examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "POST /auth/token",
+              "GET /me"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "https://cdn.usesophic.com/logo-black.svg",
+    "dark": "https://cdn.usesophic.com/logo-white.svg"
   },
   "navbar": {
+    "primary": {
+      "type": "button",
+      "label": "Get started",
+      "href": "https://mintlify.com/start"
+    },
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "mailto:hello@usesophic.com"
       }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+    ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "github": "https://github.com/athloscap",
+      "linkedin": "https://www.linkedin.com/company/sophicwealth/"
     }
   }
 }
