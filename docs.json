@@ -9,7 +9,7 @@
   },
   "favicon": "/favicon.svg",
   "interaction": {
-    "drilldown": false
+    "drilldown": true
   },
   "api": {
     "openapi": "https://api.engine.usesophic.com/openapi.json"
