@@ -62,14 +62,17 @@
                 "group": "Customers",
                 "pages": [
                   "GET /customers/{id}",
-                  "PUT /customers/{id}"
+                  "PUT /customers/{id}",
+                  "GET /customers/{id}/account-ownerships"
                 ]
               },
               {
                 "group": "Accounts",
                 "pages": [
                   "GET /accounts/{id_or_reference}",
-                  "GET /accounts/{id}/transactions"
+                  "GET /accounts/{id}/transactions",
+                  "GET /accounts/{account_id}/ownerships",
+                  "GET /accounts/{account_id}/funding-accounts"
                 ]
               }
             ]
@@ -86,7 +89,8 @@
               {
                 "group": "Positions",
                 "pages": [
-                  "GET /accounts/{account_id}/positions"
+                  "GET /accounts/{account_id}/positions",
+                  "GET /positions/{id}"
                 ]
               }
             ]
