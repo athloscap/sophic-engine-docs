@@ -8,11 +8,10 @@
     "dark": "#2A3141"
   },
   "favicon": "/favicon.svg",
-  "interaction": {
-    "drilldown": true
-  },
+  "interaction": { "drilldown": true },
+
   "api": {
-    "openapi": "https://api.engine.usesophic.com/openapi.json"
+    "openapi": "https://api-sandbox.engine.usesophic.com/openapi.json"
   },
 
   "navigation": {
@@ -30,105 +29,242 @@
             ]
           },
           {
-            "group": "Accounts",
-            "icon": "wallet",
+            "group": "Authentication",
+            "icon": "key",
             "pages": [
-              {
-                "group": "Deposits",
-                "pages": [
-                  "Depositing funds",
-                  "Withdrawing funds"
-                ]
-              },
-              {
-                "group": "Withdrawals",
-                "pages": [
-                  "Placing an order"
-                ]
-              }
+              "api-reference/auth",
+              "api-reference/idempotency",
+              "api-reference/rate-limits",
+              "api-reference/errors"
+            ]
+          },
+          {
+            "group": "Catalog",
+            "icon": "book-open",
+            "pages": [
+              "catalog/overview"
+            ]
+          },
+          {
+            "group": "Instruments",
+            "icon": "magnifying-glass",
+            "pages": [
+              "instruments/overview"
+            ]
+          },
+          {
+            "group": "Prices",
+            "icon": "chart-line-up",
+            "pages": [
+              "prices/overview"
+            ]
+          },
+          {
+            "group": "Customers & Accounts",
+            "icon": "users",
+            "pages": [
+              { "group": "Customers", "pages": ["customers/overview"] },
+              { "group": "Accounts",  "pages": ["accounts/overview", "accounts/funding-flows"] }
+            ]
+          },
+          {
+            "group": "Holdings",
+            "icon": "inboxes",
+            "pages": [
+              { "group": "Cash Balances", "pages": ["balances/overview"] },
+              { "group": "Positions", "pages": ["positions/overview"] }
             ]
           },
           {
             "group": "Payments",
             "icon": "arrow-right-arrow-left",
             "pages": [
-              {
-                "group": "Deposits",
-                "pages": [
-                  "Depositing funds",
-                  "Withdrawing funds"
-                ]
-              },
-              {
-                "group": "Withdrawals",
-                "pages": [
-                  "Placing an order"
-                ]
-              }
+              { "group": "Deposits",    "pages": ["payments/deposits"] },
+              { "group": "Withdrawals", "pages": ["payments/withdrawals"] }
             ]
           },
           {
             "group": "Trading",
             "icon": "money-bill-trend-up",
             "pages": [
-              {
-                "group": "Deposits",
-                "pages": [
-                  "Depositing funds",
-                  "Withdrawing funds"
-                ]
-              },
-              {
-                "group": "Withdrawals",
-                "pages": [
-                  "Placing an order"
-                ]
-              }
+              { "group": "Orders", "pages": ["trading/orders"] }
+            ]
+          },
+          {
+            "group": "Valuation",
+            "icon": "calculator",
+            "pages": [
+              "valuation/overview",
+              "valuation/history"
+            ]
+          },
+          {
+            "group": "Performance",
+            "icon": "chart-line-up",
+            "pages": [
+              "valuation/earnings"
+            ]
+          },
+          {
+            "group": "Billing",
+            "icon": "receipt",
+            "pages": [
+              "billing/overview",
+              "billing/fees"
+            ]
+          },
+          {
+            "group": "Reporting",
+            "icon": "document-chart-bar",
+            "pages": [
+              "reporting/overview"
             ]
           }
         ]
       },
+
       {
         "tab": "API reference",
-        "openapi": "https://api.engine.usesophic.com/openapi.json",
-        "groups": [{
-          "group": "Topics",
-          "pages": [
-            "api-reference/overview",
-            "api-reference/versioning",
-            "api-reference/auth",
-            "api-reference/idempotency",
-            "api-reference/rate-limits",
-            "api-reference/errors"
-          ]},
+        "openapi": "https://api-sandbox.engine.usesophic.com/openapi.json",
+        "groups": [
           {
             "group": "Authentication",
             "pages": [
               "POST /auth/token",
               "GET /me"
             ]
+          },
+          {
+            "group": "Catalog",
+            "pages": [
+              {
+                "group": "Instruments",
+                "pages": [
+                  "GET /instruments",
+                  "GET /instruments/{id_or_symbol}"
+                ]
+              },
+              {
+                "group": "Prices",
+                "pages": [
+                  "GET /prices",
+                  "GET /instruments/{id_or_symbol}"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Customers & Accounts",
+            "pages": [
+              {
+                "group": "Customers",
+                "pages": [
+                  "GET /customers/{id}",
+                  "PUT /customers/{id}"
+                ]
+              },
+              {
+                "group": "Accounts",
+                "pages": [
+                  "GET /accounts/{id_or_reference}",
+                  "GET /accounts/{id}/transactions"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Holdings",
+            "pages": [
+              {
+                "group": "Cash Balances",
+                "pages": [
+                  "GET /accounts/{account_id}/cash-balances"
+                ]
+              },
+              {
+                "group": "Positions",
+                "pages": [
+                  "GET /accounts/{account_id}/positions"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Payments",
+            "pages": [
+              {
+                "group": "Deposits",
+                "pages": [
+                  "POST /accounts/{account_id}/deposits"
+                ]
+              },
+              {
+                "group": "Withdrawals",
+                "pages": [
+                  "POST /accounts/{account_id}/withdrawals"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Trading",
+            "pages": [
+              {
+                "group": "Orders",
+                "pages": [
+                  "POST /accounts/{account_id}/orders",
+                  "GET /accounts/{account_id}/orders",
+                  "GET /orders/{order_id}"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Valuation",
+            "pages": [
+              "GET /accounts/{account_id}/valuation",
+              "GET /accounts/{account_id}/history"
+            ]
+          },
+          {
+            "group": "Performance",
+            "pages": [
+              "GET /accounts/{account_id}/earnings"
+            ]
+          },
+          {
+            "group": "Billing",
+            "pages": [
+              "GET /fee-charges/{fee_charge_id}"
+            ]
+          },
+          {
+            "group": "Reporting",
+            "pages": [
+
+            ]
           }
         ]
       }
     ]
   },
+
   "logo": {
     "light": "https://cdn.usesophic.com/logo-black.svg",
     "dark": "https://cdn.usesophic.com/logo-white.svg"
   },
+
   "navbar": {
     "primary": {
       "type": "button",
       "label": "Get started",
-      "href": "https://mintlify.com/start"
+      "href": "https://docs.usesophic.com/api-reference"
     },
     "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hello@usesophic.com"
-      }
+      { "label": "Support", "href": "mailto:hello@usesophic.com" }
     ]
   },
+
   "footer": {
     "socials": {
       "github": "https://github.com/athloscap",
