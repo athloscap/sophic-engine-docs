@@ -17,116 +17,19 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Docs",
-        "groups": [
-          {
-            "group": "Get started",
-            "icon": "play",
-            "pages": [
-              "index",
-              "security",
-              "changelog"
-            ]
-          },
-          {
-            "group": "Authentication",
-            "icon": "key",
-            "pages": [
-              "api-reference/auth",
-              "api-reference/idempotency",
-              "api-reference/rate-limits",
-              "api-reference/errors"
-            ]
-          },
-          {
-            "group": "Catalog",
-            "icon": "book-open",
-            "pages": [
-              "catalog/overview"
-            ]
-          },
-          {
-            "group": "Instruments",
-            "icon": "magnifying-glass",
-            "pages": [
-              "instruments/overview"
-            ]
-          },
-          {
-            "group": "Prices",
-            "icon": "chart-line-up",
-            "pages": [
-              "prices/overview"
-            ]
-          },
-          {
-            "group": "Customers & Accounts",
-            "icon": "users",
-            "pages": [
-              { "group": "Customers", "pages": ["customers/overview"] },
-              { "group": "Accounts",  "pages": ["accounts/overview", "accounts/funding-flows"] }
-            ]
-          },
-          {
-            "group": "Holdings",
-            "icon": "inboxes",
-            "pages": [
-              { "group": "Cash Balances", "pages": ["balances/overview"] },
-              { "group": "Positions", "pages": ["positions/overview"] }
-            ]
-          },
-          {
-            "group": "Payments",
-            "icon": "arrow-right-arrow-left",
-            "pages": [
-              { "group": "Deposits",    "pages": ["payments/deposits"] },
-              { "group": "Withdrawals", "pages": ["payments/withdrawals"] }
-            ]
-          },
-          {
-            "group": "Trading",
-            "icon": "money-bill-trend-up",
-            "pages": [
-              { "group": "Orders", "pages": ["trading/orders"] }
-            ]
-          },
-          {
-            "group": "Valuation",
-            "icon": "calculator",
-            "pages": [
-              "valuation/overview",
-              "valuation/history"
-            ]
-          },
-          {
-            "group": "Performance",
-            "icon": "chart-line-up",
-            "pages": [
-              "valuation/earnings"
-            ]
-          },
-          {
-            "group": "Billing",
-            "icon": "receipt",
-            "pages": [
-              "billing/overview",
-              "billing/fees"
-            ]
-          },
-          {
-            "group": "Reporting",
-            "icon": "document-chart-bar",
-            "pages": [
-              "reporting/overview"
-            ]
-          }
-        ]
-      },
-
-      {
         "tab": "API reference",
         "openapi": "https://api-sandbox.engine.usesophic.com/openapi.json",
         "groups": [
+           {
+          "group": "Topics",
+          "pages": [
+            "api-reference/overview",
+            "api-reference/versioning",
+            "api-reference/auth",
+            "api-reference/idempotency",
+            "api-reference/rate-limits",
+            "api-reference/errors"
+          ]},
           {
             "group": "Authentication",
             "pages": [
@@ -147,8 +50,7 @@
               {
                 "group": "Prices",
                 "pages": [
-                  "GET /prices",
-                  "GET /instruments/{id_or_symbol}"
+                  "GET /prices"
                 ]
               }
             ]
