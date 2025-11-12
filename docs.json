@@ -3,7 +3,7 @@
   "theme": "maple",
   "name": "Sophic Engine",
   "colors": {
-    "primary": "#4A5D83",
+    "primary": "#000000",
     "light": "#E6EDF3",
     "dark": "#2A3141"
   },
@@ -11,14 +11,14 @@
   "interaction": { "drilldown": true },
 
   "api": {
-    "openapi": "https://api-sandbox.engine.usesophic.com/openapi.json"
+    "openapi": "https://c0e1ff88f75a.ngrok-free.app/openapi.json"
   },
 
   "navigation": {
     "tabs": [
       {
         "tab": "API reference",
-        "openapi": "https://api-sandbox.engine.usesophic.com/openapi.json",
+        "openapi": "https://c0e1ff88f75a.ngrok-free.app/openapi.json",
         "groups": [
            {
           "group": "Topics",
@@ -40,96 +40,32 @@
           {
             "group": "Catalog",
             "pages": [
-              {
-                "group": "Instruments",
-                "pages": [
-                  "GET /instruments",
-                  "GET /instruments/{id_or_symbol}"
-                ]
-              },
-              {
-                "group": "Prices",
-                "pages": [
-                  "GET /prices"
-                ]
-              }
+              "GET /instruments/{id_or_symbol}",
+              "GET /instruments",
+              "GET /prices"
             ]
           },
           {
             "group": "Customers & Accounts",
             "pages": [
-              {
-                "group": "Customers",
-                "pages": [
-                  "GET /customers/{id}",
-                  "PUT /customers/{id}",
-                  "GET /customers/{id}/account-ownerships"
-                ]
-              },
-              {
-                "group": "Accounts",
-                "pages": [
-                  "GET /accounts/{id_or_reference}",
-                  "GET /accounts/{id}/transactions",
-                  "GET /accounts/{account_id}/ownerships",
-                  "GET /accounts/{account_id}/funding-accounts"
-                ]
-              }
+              "GET /customers/{id}",
+              "GET /accounts/{id_or_reference}",
+              "GET /accounts/{id}/transactions"
             ]
           },
           {
             "group": "Holdings",
             "pages": [
-              {
-                "group": "Cash Balances",
-                "pages": [
-                  "GET /accounts/{account_id}/cash-balances"
-                ]
-              },
-              {
-                "group": "Positions",
-                "pages": [
-                  "GET /accounts/{account_id}/positions",
-                  "GET /positions/{id}"
-                ]
-              }
-            ]
-          },
-          {
-            "group": "Payments",
-            "pages": [
-              {
-                "group": "Deposits",
-                "pages": [
-                  "POST /accounts/{account_id}/deposits"
-                ]
-              },
-              {
-                "group": "Withdrawals",
-                "pages": [
-                  "POST /accounts/{account_id}/withdrawals"
-                ]
-              }
-            ]
-          },
-          {
-            "group": "Trading",
-            "pages": [
-              {
-                "group": "Orders",
-                "pages": [
-                  "POST /accounts/{account_id}/orders",
-                  "GET /accounts/{account_id}/orders",
-                  "GET /orders/{order_id}"
-                ]
-              }
+              "GET /accounts/{account_id}/positions/{id}",
+              "GET /accounts/{account_id}/positions",
+              "GET /accounts/{account_id}/cash-balances"
             ]
           },
           {
             "group": "Valuation",
             "pages": [
               "GET /accounts/{account_id}/valuation",
-              "GET /accounts/{account_id}/history"
+              "GET /accounts/{account_id}/valuation-history"
             ]
           },
           {
@@ -142,12 +78,6 @@
             "group": "Billing",
             "pages": [
               "GET /fee-charges/{fee_charge_id}"
-            ]
-          },
-          {
-            "group": "Reporting",
-            "pages": [
-
             ]
           }
         ]
