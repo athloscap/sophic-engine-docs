@@ -23,7 +23,6 @@
           "group": "Topics",
           "pages": [
             "api-reference/overview",
-            "api-reference/versioning",
             "api-reference/auth",
             "api-reference/idempotency",
             "api-reference/errors"
