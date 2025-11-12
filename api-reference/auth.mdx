@@ -1,10 +1,11 @@
 ---
 title: 'Authentication'
+description: 'Authenticate requests using Bearer tokens'
 ---
 
-The Sophic Engine API uses `Bearer` tokens for authentication. Our Bearer tokens are
-JSON Web Tokens (JWTs) and are issued using the `client_credentials` OAuth2 flow. You
-will be provided with a client ID and client secret when you onboard with Sophic.
+The API uses `Bearer` tokens for authentication. Our Bearer tokens are JSON Web Tokens
+(JWTs) and are issued using the `client_credentials` OAuth2 flow. You will be provided
+with a client ID and client secret when you onboard with Sophic.
 
 ```shell
 curl -X POST https://api.engine.usesophic.com/auth/token \

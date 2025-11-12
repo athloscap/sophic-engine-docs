@@ -1,3 +1,32 @@
 ---
 title: 'Idempotency'
+description: 'Prevent duplicate operations by using idempotency keys'
 ---
+
+<Note>Support for idempotency is currently under development</Note>
+
+The API supports idempotency to safely retry requests without accidentally performing the
+same operation multiple times. This is especially useful when network errors occur; you
+can retry the request without worrying about duplicate charges, double creations, or
+repeated updates.
+
+To use idempotency, include an `Idempotency-Key` header with your request. The API stores
+the response for the first request with a given key and returns the same result for any
+subsequent requests using that key **within 24 hours** (after which the key expires and
+can be re-used).
+
+```bash
+curl -X POST https://api.engine.usesophic.com/orders \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Idempotency-Key: a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+```
+
+The format of the idempotency key is up to you; we recommend using a UUID or random string
+with sufficient entropy to avoid collisions. Keys can be up to 255 characters long; we
+will reject any request with an `Idempotency-Key` header that is longer than 255 characters.
+
+The API saves both successful and failed responses, **including server errors**. If you
+retry a request with the same idempotency key but different parameters (query, body
+and/or headers), the API will return an error to prevent accidental misuse. Keys are only
+stored after validation passes and execution begins, so validation failures can be safely
+retried.

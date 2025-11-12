@@ -1,12 +1,12 @@
 ---
 title: 'Errors'
-openapi: '#/components/schemas/Error'
+description: 'Understand error codes and debug failed requests'
 ---
 
-The Sophic Engine API uses HTTP response codes to indicate the success or failure of a
-request. Coees in the `200-299` range indicate success, codes in the `400-499` range indicate
-a client error (e.g failed validation) and should be fixed and retried in your end, and
-codes in the `500-599` range indicate a server error on our end. Some endpoints are
+The API uses HTTP response codes to indicate the success or failure of a request. Codes
+in the `200-299` range indicate success, codes in the `400-499` range indicate a client
+error (e.g failed validation) and should be fixed and retried in your end, and codes in
+the `500-599` range indicate a server error on our end. Some endpoints are
 [idempotent](/api-reference/idempotency) and so are safe to retry.
 
 ## Error response
@@ -83,7 +83,7 @@ codes in the `500-599` range indicate a server error on our end. Some endpoints 
 ## Debugging errors
 
 In addition to error codes returned from API responses, you can inspect the response
-headers for a unique request ID (`X-Request-Id`). This ID is assigned as soon as the
+headers for a unique request ID (`Request-Id`). This ID is assigned as soon as the
 request is received and is used to identify the request in our logs.
 
 We recommend logging request IDs in your production deployments for more efficient
@@ -92,14 +92,14 @@ troubleshooting with our [support team](hello@usesophic.com), should the need ar
 ### Client request IDs
 
 In addition to our request IDs, you can also supply your own request IDs via the
-`X-Client-Request-Id` header. This header is not added automatically; you must explicitly
+`Client-Request-Id` header. This header is not added automatically; you must explicitly
 set it on the request.
 
 The format is up to you; we recommend using a UUID or your internal trace ID up to a
-maximum of 100 characters. We will reject any request with a `X-Client-Request-Id` header
-that is longer than 100 characters.
+maximum of 255 characters. We will reject any request with a `Client-Request-Id` header
+that is longer than 255 characters.
 
 If you supply a client request ID, we will log this value in our internal logs so make
 sure it is not leaking any sensitive information. In cases of timeouts or network issues
-when you can't get the `X-Request-Id` response header, you can share the `X-Client-Request-Id`
+when you can't get the `Request-Id` response header, you can share the `Client-Request-Id`
 value with our support team, and we can look up whether we received the request and when.
