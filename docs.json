@@ -8,17 +8,16 @@
     "dark": "#2A3141"
   },
   "favicon": "/favicon.svg",
-  "interaction": { "drilldown": true },
 
   "api": {
-    "openapi": "https://c0e1ff88f75a.ngrok-free.app/openapi.json"
+    "openapi": "https://api-sandbox.engine.usesophic.com/openapi.json"
   },
 
   "navigation": {
     "tabs": [
       {
         "tab": "API reference",
-        "openapi": "https://c0e1ff88f75a.ngrok-free.app/openapi.json",
+        "openapi": "https://api-sandbox.engine.usesophic.com/openapi.json",
         "groups": [
            {
           "group": "Topics",
@@ -27,7 +26,6 @@
             "api-reference/versioning",
             "api-reference/auth",
             "api-reference/idempotency",
-            "api-reference/rate-limits",
             "api-reference/errors"
           ]},
           {
@@ -91,11 +89,6 @@
   },
 
   "navbar": {
-    "primary": {
-      "type": "button",
-      "label": "Get started",
-      "href": "https://docs.usesophic.com/api-reference"
-    },
     "links": [
       { "label": "Support", "href": "mailto:hello@usesophic.com" }
     ]

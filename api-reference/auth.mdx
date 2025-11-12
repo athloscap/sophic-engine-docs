@@ -1,3 +1,31 @@
 ---
 title: 'Authentication'
 ---
+
+The Sophic Engine API uses `Bearer` tokens for authentication. Our Bearer tokens are
+JSON Web Tokens (JWTs) and are issued using the `client_credentials` OAuth2 flow. You
+will be provided with a client ID and client secret when you onboard with Sophic.
+
+```shell
+curl -X POST https://api.engine.usesophic.com/auth/token \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "client_id=YOUR_CLIENT_ID" \
+  -d "client_secret=YOUR_CLIENT_SECRET" \
+  -d "grant_type=client_credentials"
+```
+
+Once your obtain a token, you should provide it in subsequent requests via [HTTP Bearer authentication](https://swagger.io/docs/specification/v3_0/authentication/bearer-authentication/).
+
+```
+Authorization: Bearer YOUR_ACCESS_TOKEN
+```
+
+By default, our tokens are short-lived (expire after 15 minutes) and should be refreshed
+as needed. To renew your JWTs you should go through the `client_credentials` flow again
+(i.e calling the `POST /auth/token` endpoint). Our `client_credentials` flow does not
+support refresh tokens.
+
+Remember that your **client secret is a secret.** Do not share it with others or
+expose it in any client-side code (browsers, apps). The `client_credentials` flow is
+a machine-to-machine flow so your client-side code should obtain a JWT by going through
+your backend first.
