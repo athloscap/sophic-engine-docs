@@ -59,6 +59,12 @@
             ]
           },
           {
+            "group": "Payments",
+            "pages": [
+              "POST /accounts/{account_id}/deposits"
+            ]
+          },
+          {
             "group": "Valuation",
             "pages": [
               "GET /accounts/{account_id}/valuation",
