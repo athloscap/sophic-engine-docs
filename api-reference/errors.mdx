@@ -1,21 +1,28 @@
 ---
-title: 'Errors'
-description: 'Understand error codes and debug failed requests'
+title: Errors
+description: "Understand our error responses and debug failed requests."
 ---
 
-The API uses HTTP response codes to indicate the success or failure of a request. Codes
+import { Table } from "/snippets/table.jsx";
+import { httpStatuses, httpStatusTableColumns } from "/snippets/variables.jsx";
+
+The API uses HTTP status codes to indicate the success or failure of a request. Status codes
 in the `200-299` range indicate success, codes in the `400-499` range indicate a client
 error (e.g failed validation) and should be fixed and retried in your end, and codes in
-the `500-599` range indicate a server error on our end. Some endpoints are
-[idempotent](/api-reference/idempotency) and so are safe to retry.
+the `500-599` range indicate a server error on our end. Status codes in the `300-399` range
+indicate a redirect. Some endpoints are [idempotent](/api-reference/idempotency) and so are safe to retry.
 
 ## Error response
 
 <ResponseField name="code" type="string" required>
-  A machine-readable error code that can be used to programmatically handle the error.
+  A machine-readable <Link href="/api-reference/error-codes">error code</Link> that can be used to programmatically handle the error.
 </ResponseField>
 <ResponseField name="detail" type="string" required>
-  A human-readable string describing the error.
+  A developer-facing description of the error. This description is not meant to be
+  displayed to the user.
+</ResponseField>
+<ResponseField name="docs" type="string">
+  A URL to the error documentation page.
 </ResponseField>
 <ResponseField name="params" type="array">
   An array of objects describing the parameters that caused the error. This is mostly
@@ -25,7 +32,8 @@ the `500-599` range indicate a server error on our end. Some endpoints are
       The path to the parameter that caused the error.
     </ResponseField>
     <ResponseField name="detail" type="string" required>
-      A human-readable string describing the error.
+      A developer-facing description of the error. This description is not meant to be
+      displayed to the user.
     </ResponseField>
     <ResponseField name="code" type="string" required>
       A machine-readable error code that can be used to programmatically handle the error.
@@ -38,47 +46,59 @@ the `500-599` range indicate a server error on our end. Some endpoints are
   a specific parameter.
 </ResponseField>
 
-<ResponseExample>
+#### Examples
+<CodeGroup>
+  ```json HTTP 400 (with params)
+  {
+      "code": "invalid_request",
+      "detail": "The request is invalid.",
+      "docs": "https://docs.engine.usesophic.com/api-reference/errors#invalid_request",
+      "params": [
+          {
+              "path": "body.account_id",
+              "detail": "Account not found",
+              "code": "not_found"
+          }
+      ]
+  }
+  ```
 
-```json 401
-{
-    "code": "invalid_token",
-    "detail": "The access token is invalid or has expired."
-}
-```
+  ```json HTTP 400 (with context)
+  {
+      "code": "insufficient_funds",
+      "detail": "The account has insufficient funds to cover the requested operation.",
+      "docs": "https://docs.engine.usesophic.com/api-reference/errors#insufficient_funds",
+      "context": {
+          "available": "1000"
+      }
+  }
+  ```
 
-```json 400 (with params)
-{
-    "code": "invalid_request",
-    "detail": "The request is invalid.",
-    "params": [
-        {
-            "path": "body.account_id",
-            "detail": "Account not found",
-            "code": "not_found"
-        }
-    ]
-}
-```
+  ```json HTTP 401
+  {
+      "code": "invalid_token",
+      "detail": "The access token is invalid or has expired.",
+      "docs": "https://docs.engine.usesophic.com/api-reference/errors#invalid_token"
+  }
+  ```
 
-```json 400 (with context)
-{
-    "code": "insufficient_funds",
-    "detail": "The account has insufficient funds to cover the requested operation.",
-    "context": {
-        "available": "1000"
-    }
-}
-```
+  ```json HTTP 500
+  {
+      "code": "server_error",
+      "detail": "The service encountered an unexpected error.",
+      "docs": "https://docs.engine.usesophic.com/api-reference/errors#server_error"
+  }
+  ```
+</CodeGroup>
 
-
-```json 500
-{
-    "code": "server_error",
-    "detail": "The service encountered an unexpected error."
-}
-```
-</ResponseExample>
+<Panel>
+  <Table
+    title="Common HTTP status codes "
+    columns={httpStatusTableColumns}
+    data={httpStatuses}
+    rowKey="status"
+  />
+</Panel>
 
 ## Debugging errors
 
@@ -101,5 +121,5 @@ that is longer than 255 characters.
 
 If you supply a client request ID, we will log this value in our internal logs so make
 sure it is not leaking any sensitive information. In cases of timeouts or network issues
-when you can't get the `Request-Id` response header, you can share the `Client-Request-Id`
+when you can"t get the `Request-Id` response header, you can share the `Client-Request-Id`
 value with our support team, and we can look up whether we received the request and when.

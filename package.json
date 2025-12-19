@@ -1,0 +1,19 @@
+{
+  "name": "sophic-engine-docs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "mint dev",
+    "build": "mint build",
+    "start": "mint start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.9.0",
+  "dependencies": {
+    "biome": "^0.3.3",
+    "mint": "^4.2.248"
+  }
+}

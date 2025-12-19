@@ -1,32 +1,45 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "maple",
+  "theme": "mint",
   "name": "Sophic Engine",
   "colors": {
-    "primary": "#000000",
+    "primary": "#2A3141",
     "light": "#E6EDF3",
-    "dark": "#2A3141"
+    "dark": "#FF0000"
+  },
+  "styling": {
+    "eyebrows": "breadcrumbs",
+    "codeblocks": {
+      "theme": "github-light"
+    }
+  },
+  "appearance": {
+    "default": "light",
+    "strict": true
+  },
+  "background": {
+    "color": {
+      "light": "#ffffff"
+    }
   },
   "favicon": "/favicon.svg",
-
   "api": {
-    "openapi": "https://api-sandbox.engine.usesophic.com/openapi.json"
+    "openapi": "https://api.engine.usesophic.com/openapi.json"
   },
-
   "navigation": {
     "tabs": [
       {
         "tab": "API reference",
-        "openapi": "https://api-sandbox.engine.usesophic.com/openapi.json",
+        "openapi": "https://api.engine.usesophic.com/openapi.json",
         "groups": [
-           {
-          "group": "Topics",
-          "pages": [
-            "api-reference/overview",
-            "api-reference/auth",
-            "api-reference/idempotency",
-            "api-reference/errors"
-          ]},
+          {
+            "group": "Topics",
+            "pages": [
+              "api-reference/overview",
+              "api-reference/auth",
+              "api-reference/idempotency",
+              "api-reference/errors"
+            ]},
           {
             "group": "Authentication",
             "pages": [
@@ -87,18 +100,15 @@
       }
     ]
   },
-
   "logo": {
     "light": "https://cdn.usesophic.com/logo-black.svg",
     "dark": "https://cdn.usesophic.com/logo-white.svg"
   },
-
   "navbar": {
     "links": [
       { "label": "Support", "href": "mailto:hello@usesophic.com" }
     ]
   },
-
   "footer": {
     "socials": {
       "github": "https://github.com/athloscap",
