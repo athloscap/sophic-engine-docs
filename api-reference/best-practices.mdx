@@ -1,0 +1,20 @@
+---
+title: Best practices
+description: A list of best practices for a stable integration.
+---
+
+The following is a non-exhaustive list of recommended best practices for a stable integration:
+
+- Treat all Sophic-generated IDs as opaque strings (do not parse them); support up to 255 characters
+- Store IDs in a case-sensitive way; do not normalize case or trim whitespace
+- Do not rely on JSON property order in requests or responses
+- Ignore unfamiliar response fields for forward compatibility
+- Treat enums as open-ended: implement a safe fallback for unknown enum values
+- Do not parse human-readable error messages; implement logic using error codes only
+- Implement a fallback behavior for unknown error codes (e.g., treat as non-retryable unless explicitly marked retryable)
+- Set conservative timeouts and retry safely for network failures
+- Validate inputs client-side where feasible, but do not rely on client-side validation alone
+- Log request IDs returned by Sophic to speed up support and incident resolution and, if possible,
+provide a `Client-Request-Id` header in your requests
+- Pin your integration to a specific Api-Version and plan upgrades during the published support window
+- Monitor for deprecation signals (e.g., `Api-Version-Sunset` header) and alert on them

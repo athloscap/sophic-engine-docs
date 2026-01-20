@@ -35,10 +35,11 @@
           {
             "group": "Topics",
             "pages": [
-              "api-reference/overview",
               "api-reference/auth",
               "api-reference/idempotency",
-              "api-reference/errors"
+              "api-reference/errors",
+              "api-reference/versioning",
+              "api-reference/best-practices"
             ]},
           {
             "group": "Authentication",

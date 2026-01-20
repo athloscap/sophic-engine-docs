@@ -1,3 +1,65 @@
 ---
 title: Versioning
+description: Learn about our versioning policy.
 ---
+
+The Sophic Engine API is versioned using date-based versioning. The API version name is
+based on the date when the API version was released. For example, the API version
+`2026-01-01` was released on January 1, 2026.
+
+## Current version
+
+The current API version is **2026-01-01**.
+
+## Specifying a version
+
+Specify the API version using the `Api-Version` header:
+
+```shell
+curl https://api.engine.usesophic.com/me \
+  -H "Authorization: Bearer BEARER_TOKEN" \
+  -H "Api-Version: 2026-01-01"
+```
+
+## Backwards compatible changes
+
+The following changes are considered backwards compatible and will be available in all
+supported API versions without requiring a version change:
+
+- Adding new API resources
+- Adding new optional request parameters to existing API methods
+- Adding new properties to existing API responses
+- Changing the order of properties in existing API responses
+- Changing the length or format of opaque strings, such as resource IDs, error messages,
+and other human-readable strings (including adding or removing ID prefixes)
+- Adding new event types
+- Adding new enum values (so your integration must handle unknown values)
+- Adding new error codes
+- Changing the wording, formatting, or language of error `detail` messages
+
+## Breaking changes
+
+Any breaking changes will be released in a new API version. Breaking changes are changes
+that can potentially break a well-written integration, including:
+
+- Removing an entire operation
+- Removing or renaming a parameter
+- Removing or renaming a response field
+- Removing or changing the meaning of an existing error code
+- Adding a new required parameter
+- Making a previously optional parameter required
+- Changing the type of a parameter or response field
+- Removing enum values
+- Adding a new validation rule to an existing parameter
+- Changing authentication or authorization requirements
+- Changing the behavior or semantics of an operation (including sorting, pagination,
+rounding, idempotency, side effects, etc.)
+
+## Version support policy
+
+When a new REST API version is released, the previous API version will be supported for
+at least **4 more months** following the release of the new API version. If your integration
+is using a deprecated version, you will be notified by email, and our responses will include
+a sunset header (`Api-Version-Sunset: <sunset date>`) containing the date that the version
+you are using will be sunset.
+
