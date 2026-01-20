@@ -82,6 +82,15 @@
             ]
           },
           {
+            "group": "Trading",
+            "pages": [
+              "GET /accounts/{account_id}/orders/{order_id}",
+              "GET /accounts/{account_id}/orders",
+              "GET /accounts/{account_id}/pending-orders",
+              "POST /accounts/{account_id}/orders"
+            ]
+          },
+          {
             "group": "Valuation",
             "pages": [
               "GET /accounts/{account_id}/valuation",
