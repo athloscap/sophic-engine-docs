@@ -66,7 +66,7 @@
           {
             "group": "Holdings",
             "pages": [
-              "GET /accounts/{account_id}/positions/{id}",
+              "GET /accounts/{account_id}/positions/{position_id}",
               "GET /accounts/{account_id}/positions",
               "GET /accounts/{account_id}/cash-balances"
             ]
@@ -74,7 +74,11 @@
           {
             "group": "Payments",
             "pages": [
-              "POST /accounts/{account_id}/deposits"
+              "GET /accounts/{account_id}/funding-accounts",
+              "GET /accounts/{account_id}/deposits/{deposit_id}",
+              "POST /accounts/{account_id}/deposits",
+              "GET /accounts/{account_id}/withdrawals/{withdrawal_id}",
+              "POST /accounts/{account_id}/withdrawals"
             ]
           },
           {
