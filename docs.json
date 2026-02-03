@@ -109,6 +109,15 @@
             "pages": [
               "GET /fee-charges/{fee_charge_id}"
             ]
+          },
+          {
+            "group": "Webhooks",
+            "pages": [
+              "POST /webhooks",
+              "GET /webhooks/{webhook_id}",
+              "GET /webhooks",
+              "PUT /webhooks/{webhook_id}"
+            ]
           }
         ]
       }
