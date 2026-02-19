@@ -68,8 +68,16 @@ export const errorCodes = [
         "detail": "A funding account with the same IBAN and bank code already exists for this account."
     },
     {
+        "code": "duplicate_webhook",
+        "detail": "A webhook with the same URL already exists."
+    },
+    {
         "code": "email_forbidden",
         "detail": "The email address is not allowed for this operation."
+    },
+    {
+        "code": "file_not_uploaded",
+        "detail": "The file has not been uploaded to the storage yet."
     },
     {
         "code": "forbidden",
@@ -162,6 +170,14 @@ export const errorCodes = [
     {
         "code": "server_error",
         "detail": "An unexpected internal error occurred."
+    },
+    {
+        "code": "signed_upload_expired",
+        "detail": "The signed upload has expired."
+    },
+    {
+        "code": "webhook_not_active",
+        "detail": "The webhook is not active."
     },
     {
         "code": "withdrawal_forbidden",
