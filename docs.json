@@ -13,6 +13,14 @@
       "theme": "github-light"
     }
   },
+  "contextual": {
+    "options":[
+      "view",
+      "copy",
+      "chatgpt",
+      "claude"
+    ]
+  },
   "appearance": {
     "default": "light",
     "strict": true
