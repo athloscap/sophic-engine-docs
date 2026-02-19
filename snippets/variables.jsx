@@ -16,6 +16,10 @@ export const httpStatuses = [
         description: "Everything worked as expected and a new resource was created. This is typically used for create operations (POST requests)."
     },
     {
+        status: "202",
+        description: "The request has been accepted for processing, but the processing has not been completed. This is used for asynchronous operations like testing webhooks."
+    },
+    {
         status: "400",
         description: "The request was unacceptable, often due to a validation error."
     },
@@ -30,6 +34,10 @@ export const httpStatuses = [
     {
         status: "404",
         description: "The requested resource doesn't exist."
+    },
+    {
+        status: "409",
+        description: "The request conflicts with the current state of the resource."
     },
     {
         status: "500",
