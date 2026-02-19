@@ -119,6 +119,12 @@
             ]
           },
           {
+            "group": "Events",
+            "pages": [
+              "GET /events"
+            ]
+          },
+          {
             "group": "Webhooks",
             "pages": [
               "POST /webhooks",
