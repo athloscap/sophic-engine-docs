@@ -119,21 +119,6 @@
             ]
           },
           {
-            "group": "Events",
-            "pages": [
-              "GET /events"
-            ]
-          },
-          {
-            "group": "Webhooks",
-            "pages": [
-              "POST /webhooks",
-              "GET /webhooks/{webhook_id}",
-              "GET /webhooks",
-              "PUT /webhooks/{webhook_id}"
-            ]
-          },
-          {
             "group": "Files",
             "pages": [
               "POST /signed-uploads",
@@ -149,6 +134,21 @@
               "GET /legal-documents/{legal_document_id}/versions/{version_id}",
               "GET /legal-documents/{legal_document_id}/latest/file",
               "GET /legal-documents/{legal_document_id}/versions/{version_id}/file"
+            ]
+          },
+          {
+            "group": "Events",
+            "pages": [
+              "GET /events"
+            ]
+          },
+          {
+            "group": "Webhooks",
+            "pages": [
+              "POST /webhooks",
+              "GET /webhooks/{webhook_id}",
+              "GET /webhooks",
+              "PUT /webhooks/{webhook_id}"
             ]
           }
         ]
