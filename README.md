@@ -27,7 +27,7 @@ Preview at `http://localhost:3000`. Changes to `.mdx` files and `docs.json` are 
 
 ```
 docs.json                       # Site config, navigation, OpenAPI spec
-documentation/                  # Guides and how-to content ("Documentation" tab)
+docs/                           # Guides and how-to content ("Documentation" tab)
   introduction.mdx
   webhooks/
     ...
@@ -44,7 +44,7 @@ changelog.mdx                  # Changelog ("Changelog" tab)
 
 ### Adding a new documentation page
 
-1. Create a new `.mdx` file in the appropriate directory (e.g. `documentation/webhooks/quickstart.mdx`).
+1. Create a new `.mdx` file in the appropriate directory (e.g. `docs/webhooks/quickstart.mdx`).
 2. Add frontmatter with at least a `title`:
    ```yaml
    ---
@@ -57,8 +57,8 @@ changelog.mdx                  # Changelog ("Changelog" tab)
    {
      "group": "Webhooks",
      "pages": [
-       "documentation/webhooks/overview",
-       "documentation/webhooks/quickstart"
+       "docs/webhooks/overview",
+       "docs/webhooks/quickstart"
      ]
    }
    ```
@@ -102,7 +102,7 @@ Add a new object to the `groups` array inside the relevant tab:
 {
   "group": "New Section",
   "pages": [
-    "documentation/new-section/overview"
+    "docs/new-section/overview"
   ]
 }
 ```
