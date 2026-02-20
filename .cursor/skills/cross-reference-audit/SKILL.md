@@ -18,7 +18,7 @@ Check that all internal links in documentation pages point to valid destinations
 
 1. **Find all internal links.** Search `.mdx` files for markdown link patterns like `](/some/path)` and `](#anchor)`.
 
-2. **Validate static page links.** For links starting with `/documentation/` or `/api-reference/`:
+2. **Validate static page links.** For links starting with `/docs/` or `/api-reference/`:
    - Check that a corresponding `.mdx` file exists on disk at that path.
    - Check that the page is listed in `docs.json` navigation (a file on disk won't appear in docs unless it's in the nav).
 

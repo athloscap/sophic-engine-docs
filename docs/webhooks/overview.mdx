@@ -7,19 +7,15 @@ Webhooks let you receive real-time HTTP notifications when events happen in your
 
 ## Setting up a webhook
 
-To get started, use the [Create webhook](/api-reference/create-a-webhook) endpoint to register a webhook URL.
-
-Each webhook subscription requires:
-- A destination **URL** (must be HTTPS)
-- One or more **event types** to subscribe to
+To get started, use the [Create webhook](/api-reference/create-a-webhook) endpoint to
+register a webhook URL (must be HTTPS and not an IP).
 
 ```bash
 curl -X POST https://api.engine.usesophic.com/webhooks \
   -H "Authorization: Bearer YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "url": "https://your-app.com/webhooks/sophic",
-    "events": ["order.filled", "deposit.completed"]
+    "url": "https://your-app.com/webhooks/sophic"
   }'
 ```
 
@@ -30,15 +26,15 @@ Every webhook delivery includes the following HTTP headers:
 | Header | Description |
 |---|---|
 | `Content-Type` | Always `application/json`. |
-| `Webhook-Id` | The unique ID of this delivery (e.g. `whd_abc123`). Use this to [deduplicate](/documentation/webhooks/deliveries#handling-duplicates) retried deliveries. |
-| `Webhook-Timestamp` | Unix timestamp (seconds) of when the delivery was dispatched. Use this to [reject stale messages](/documentation/webhooks/verifying-signatures#rejecting-stale-webhooks). |
-| `Webhook-Signature` | HMAC-SHA256 signature(s) of the payload. Multiple signatures may be present during [secret rotation](/documentation/webhooks/verifying-signatures#secret-rotation). |
+| `Webhook-Id` | The unique ID of this delivery (e.g. `whd_abc123`). Use this to [deduplicate](/docs/webhooks/deliveries#handling-duplicates) retried deliveries. |
+| `Webhook-Timestamp` | Unix timestamp (seconds) of when the delivery was dispatched. Use this to [reject stale messages](/docs/webhooks/verifying-signatures#rejecting-stale-webhooks). |
+| `Webhook-Signature` | HMAC-SHA256 signature(s) of the payload. Multiple signatures may be present during [secret rotation](/docs/webhooks/verifying-signatures#secret-rotation). |
 | `Webhook-Attempt` | 1-indexed attempt number for this delivery. `1` on the first try, incremented on each retry. |
 | `Event-Id` | The ID of the originating event (e.g. `evt_abc123`). Not present on test deliveries. |
 
 ## Receiving webhooks
 
-When an event occurs, we send a `POST` request to your registered URL. The webhook payload follows the same schema as the [Event](/api-reference/events/get-events) resource:
+When an event occurs, we send a `POST` request to your registered URL. The webhook payload follows the same schema as the [Event](/api-reference/list-events) resource:
 
 ```json
 {
@@ -55,7 +51,7 @@ When an event occurs, we send a `POST` request to your registered URL. The webho
 }
 ```
 
-Your endpoint should return a `2xx` status code within **15 seconds** to acknowledge receipt. Any other status code, timeout, or connection error is treated as a failed delivery and will be [retried](/documentation/webhooks/deliveries#retry-schedule). The maximum time we'll wait for a response is 25 seconds (5s connect + 15s read + 5s write).
+Your endpoint should return a `2xx` status code within **15 seconds** to acknowledge receipt. Any other status code, timeout, or connection error is treated as a failed delivery and will be [retried](/docs/webhooks/deliveries#retry-schedule). The maximum time we'll wait for a response is 25 seconds (5s connect + 15s read + 5s write).
 
 ## CSRF protection
 
