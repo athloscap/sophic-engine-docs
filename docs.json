@@ -43,23 +43,23 @@
           {
             "group": "Getting Started",
             "pages": [
-              "documentation/introduction"
+              "docs/intro"
             ]
           },
           {
             "group": "Webhooks",
             "pages": [
-              "documentation/webhooks/overview",
-              "documentation/webhooks/verifying-signatures",
-              "documentation/webhooks/deliveries",
-              "documentation/webhooks/best-practices"
+              "docs/webhooks/overview",
+              "docs/webhooks/verifying-signatures",
+              "docs/webhooks/deliveries",
+              "docs/webhooks/best-practices"
             ]
           }
         ]
       },
       {
         "tab": "API Reference",
-        "icon": "code",
+        "icon": "square-terminal",
         "openapi": "https://api.engine.usesophic.com/openapi.json",
         "groups": [
           {
@@ -188,6 +188,12 @@
       { "label": "Support", "href": "mailto:hello@usesophic.com" }
     ]
   },
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/docs/introduction"
+    }
+  ],
   "footer": {
     "socials": {
       "github": "https://github.com/athloscap",
