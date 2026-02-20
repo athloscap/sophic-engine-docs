@@ -38,6 +38,7 @@
     "tabs": [
       {
         "tab": "Documentation",
+        "icon": "book-open",
         "groups": [
           {
             "group": "Getting Started",
@@ -58,6 +59,7 @@
       },
       {
         "tab": "API Reference",
+        "icon": "code",
         "openapi": "https://api.engine.usesophic.com/openapi.json",
         "groups": [
           {
@@ -171,17 +173,6 @@
               "GET /webhooks",
               "PUT /webhooks/{webhook_id}",
               "POST /webhooks/{webhook_id}/test"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Changelog",
-        "groups": [
-          {
-            "group": "Changelog",
-            "pages": [
-              "changelog"
             ]
           }
         ]
