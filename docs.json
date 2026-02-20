@@ -119,6 +119,24 @@
             ]
           },
           {
+            "group": "Files",
+            "pages": [
+              "POST /signed-uploads",
+              "POST /files"
+            ]
+          },
+          {
+            "group": "Legal Documents",
+            "pages": [
+              "GET /legal-documents/{legal_document_id}",
+              "GET /legal-documents",
+              "GET /legal-documents/{legal_document_id}/versions",
+              "GET /legal-documents/{legal_document_id}/versions/{version_id}",
+              "GET /legal-documents/{legal_document_id}/latest/file",
+              "GET /legal-documents/{legal_document_id}/versions/{version_id}/file"
+            ]
+          },
+          {
             "group": "Events",
             "pages": [
               "GET /events"
