@@ -33,6 +33,13 @@ If your endpoint doesn't return a `2xx` response, we'll retry the delivery with 
 
 The total delivery window spans approximately **43 hours on average** and up to **3.6 days** in the worst case. After 10 failed attempts, the delivery is marked as `failed` and no further retries are made.
 
+### Disabling a webhook
+
+If a webhook is disabled while a delivery is in progress, any future retry attempts
+will be cancelled and the delivery will be marked as `failed`. However, if a
+delivery attempt is already in flight (i.e. we're actively waiting for your endpoint to
+respond), that attempt will complete normally before the cancellation takes effect.
+
 ## Delivery attempt errors
 
 Each failed delivery attempt records the type of error encountered:
@@ -45,6 +52,7 @@ Each failed delivery attempt records the type of error encountered:
 | `tls` | TLS certificate verification failed. |
 | `connection` | The connection was refused, reset, or a network error occurred. |
 | `validation` | The webhook URL failed validation (e.g. it resolves to a private IP address). |
+| `webhook_disabled` | The webhook was disabled while this delivery was still in progress. |
 | `unknown` | An unhandled exception occurred during delivery. |
 
 ## Handling duplicates

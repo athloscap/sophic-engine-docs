@@ -13,11 +13,11 @@ Your webhook endpoint needs to use HTTPS. We won't deliver events to insecure HT
 
 ### Verify signatures
 
-Always [verify](/documentation/webhooks/verifying-signatures) the `Webhook-Signature` header and reject requests with invalid or stale timestamps. This helps protect your integration from forged or replayed requests.
+Always [verify](/docs/webhooks/verifying-signatures) the `Webhook-Signature` header and reject requests with invalid or stale timestamps. This helps protect your integration from forged or replayed requests.
 
 ### Handle retries gracefully
 
-Your endpoint may receive the same event more than once, so it's important to make your handler [idempotent](/documentation/webhooks/deliveries#handling-duplicates). Using the `Webhook-Id` header to deduplicate deliveries is a simple and effective approach.
+Your endpoint may receive the same event more than once, so it's important to make your handler [idempotent](/docs/webhooks/deliveries#handling-duplicates). Using the `Webhook-Id` header to deduplicate deliveries is a simple and effective approach.
 
 ### Monitor failures
 
