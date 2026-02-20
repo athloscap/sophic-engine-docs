@@ -37,7 +37,27 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "API reference",
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "documentation/introduction"
+            ]
+          },
+          {
+            "group": "Webhooks",
+            "pages": [
+              "documentation/webhooks/overview",
+              "documentation/webhooks/verifying-signatures",
+              "documentation/webhooks/deliveries",
+              "documentation/webhooks/best-practices"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
         "openapi": "https://api.engine.usesophic.com/openapi.json",
         "groups": [
           {
@@ -48,7 +68,8 @@
               "api-reference/errors",
               "api-reference/versioning",
               "api-reference/best-practices"
-            ]},
+            ]
+          },
           {
             "group": "Authentication",
             "pages": [
@@ -148,7 +169,19 @@
               "POST /webhooks",
               "GET /webhooks/{webhook_id}",
               "GET /webhooks",
-              "PUT /webhooks/{webhook_id}"
+              "PUT /webhooks/{webhook_id}",
+              "POST /webhooks/{webhook_id}/test"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Changelog",
+        "groups": [
+          {
+            "group": "Changelog",
+            "pages": [
+              "changelog"
             ]
           }
         ]

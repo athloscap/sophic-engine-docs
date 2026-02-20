@@ -1,0 +1,245 @@
+---
+title: Verifying Signatures
+description: "Validate that webhook requests are authentic before processing them"
+---
+
+Every webhook request includes a signature in the `Webhook-Signature` header. You should verify this signature to confirm the request is authentic and hasn't been tampered with before acting on it.
+
+The signature is computed using HMAC-SHA256 over the delivery ID, timestamp, and raw request body.
+
+## Signature format
+
+The `Webhook-Signature` header contains one or more signatures in the format:
+
+```
+v1,{hex_digest}
+```
+
+During [secret rotation](#secret-rotation), multiple signatures may be present, separated by spaces:
+
+```
+v1,a1b2c3d4e5f6... v1,f6e5d4c3b2a1...
+```
+
+A request is valid if **any** of the signatures matches your computed value.
+
+## Verification steps
+
+<Steps>
+  <Step title="Extract the headers">
+    Read the `Webhook-Signature`, `Webhook-Id`, and `Webhook-Timestamp` headers from the incoming request.
+  </Step>
+  <Step title="Prepare the signed payload">
+    Concatenate the timestamp, the delivery ID, and the raw request body, separated by periods (`.`):
+    ```
+    {webhook_timestamp}.{webhook_id}.{raw_body}
+    ```
+  </Step>
+  <Step title="Compute the expected signature">
+    Compute an HMAC-SHA256 using your webhook signing secret as the key and the prepared string as the message.
+  </Step>
+  <Step title="Compare signatures">
+    Split the `Webhook-Signature` header on spaces. The request is valid if any of the provided signatures matches your computed value. Always use a constant-time comparison function to prevent timing attacks.
+  </Step>
+</Steps>
+
+<Note>
+Use the **raw request body** when computing the HMAC. Parsing the JSON first and re-serializing it can silently alter the payload — for example, some languages round floating-point numbers or reorder keys — which will cause the signature check to fail.
+</Note>
+
+## Examples
+
+<CodeGroup>
+```python Python
+import hmac
+import hashlib
+
+def verify_webhook(payload: bytes, headers: dict, secret: str) -> bool:
+    timestamp = headers["Webhook-Timestamp"]
+    delivery_id = headers["Webhook-Id"]
+    signatures = headers["Webhook-Signature"].split(" ")
+
+    signed_payload = f"{timestamp}.{delivery_id}.".encode() + payload
+    computed = hmac.new(
+        secret.encode(),
+        signed_payload,
+        hashlib.sha256,
+    ).hexdigest()
+    expected = f"v1,{computed}"
+
+    return any(hmac.compare_digest(expected, sig) for sig in signatures)
+```
+
+```javascript Node.js
+const crypto = require("crypto");
+
+function verifyWebhook(payload, headers, secret) {
+  const timestamp = headers["webhook-timestamp"];
+  const deliveryId = headers["webhook-id"];
+  const signatures = headers["webhook-signature"].split(" ");
+
+  const signedPayload = `${timestamp}.${deliveryId}.${payload}`;
+  const computed =
+    "v1," +
+    crypto.createHmac("sha256", secret).update(signedPayload).digest("hex");
+
+  return signatures.some(
+    (sig) =>
+      sig.length === computed.length &&
+      crypto.timingSafeEqual(Buffer.from(computed), Buffer.from(sig))
+  );
+}
+```
+
+```go Go
+package main
+
+import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
+	"strings"
+)
+
+func verifyWebhook(payload []byte, webhookID, timestamp, signatureHeader, secret string) bool {
+	signed := fmt.Sprintf("%s.%s.%s", timestamp, webhookID, string(payload))
+	mac := hmac.New(sha256.New, []byte(secret))
+	mac.Write([]byte(signed))
+	expected := "v1," + hex.EncodeToString(mac.Sum(nil))
+
+	for _, sig := range strings.Split(signatureHeader, " ") {
+		if hmac.Equal([]byte(expected), []byte(sig)) {
+			return true
+		}
+	}
+	return false
+}
+```
+
+```java Java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+
+public class WebhookVerifier {
+    public static boolean verify(byte[] payload, String webhookId,
+                                 String timestamp, String signatureHeader,
+                                 String secret) throws Exception {
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+
+        String signed = timestamp + "." + webhookId + "." + new String(payload, StandardCharsets.UTF_8);
+        byte[] digest = mac.doFinal(signed.getBytes(StandardCharsets.UTF_8));
+
+        StringBuilder hex = new StringBuilder();
+        for (byte b : digest) hex.append(String.format("%02x", b));
+        String expected = "v1," + hex;
+
+        for (String sig : signatureHeader.split(" ")) {
+            if (MessageDigest.isEqual(expected.getBytes(), sig.getBytes())) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+```
+
+```csharp C#
+using System.Security.Cryptography;
+using System.Text;
+
+public static class WebhookVerifier
+{
+    public static bool Verify(byte[] payload, string webhookId,
+                              string timestamp, string signatureHeader,
+                              string secret)
+    {
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret));
+        var signed = $"{timestamp}.{webhookId}.{Encoding.UTF8.GetString(payload)}";
+        var digest = hmac.ComputeHash(Encoding.UTF8.GetBytes(signed));
+        var expected = "v1," + Convert.ToHexStringLower(digest);
+
+        foreach (var sig in signatureHeader.Split(' '))
+        {
+            if (CryptographicOperations.FixedTimeEquals(
+                    Encoding.UTF8.GetBytes(expected),
+                    Encoding.UTF8.GetBytes(sig)))
+                return true;
+        }
+        return false;
+    }
+}
+```
+</CodeGroup>
+
+## Secret rotation
+
+When we rotate a webhook signing secret, both the old and new secrets remain active during a transition period. During this window, we sign each delivery with all active secrets and include their signatures in the `Webhook-Signature` header, separated by spaces. For example:
+
+```http
+Webhook-Signature: v1,a1b2c3d4e5f60718293a4b5c6d7e8f90... v1,f6e5d4c3b2a10987fedc6b5a4938271...
+```
+
+Your verification code should accept the delivery if **any** of the signatures is valid. This means you can continue using your current secret while we complete the rotation — no changes are needed on your end until the old secret is fully retired.
+
+## Rejecting stale webhooks
+
+To protect against replay attacks, we recommend checking the `Webhook-Timestamp` header and rejecting any webhook where the timestamp is more than **5 minutes** from your server's current time.
+
+<CodeGroup>
+```python Python
+import time
+
+def is_timestamp_valid(headers: dict, tolerance_seconds: int = 300) -> bool:
+    timestamp = int(headers["Webhook-Timestamp"])
+    return abs(time.time() - timestamp) < tolerance_seconds
+```
+
+```javascript Node.js
+function isTimestampValid(headers, toleranceSeconds = 300) {
+  const timestamp = parseInt(headers["webhook-timestamp"], 10);
+  return Math.abs(Date.now() / 1000 - timestamp) < toleranceSeconds;
+}
+```
+
+```go Go
+import (
+	"math"
+	"strconv"
+	"time"
+)
+
+func isTimestampValid(timestamp string, toleranceSeconds float64) bool {
+	ts, err := strconv.ParseInt(timestamp, 10, 64)
+	if err != nil {
+		return false
+	}
+	diff := math.Abs(float64(time.Now().Unix()) - float64(ts))
+	return diff < toleranceSeconds
+}
+```
+
+```java Java
+public static boolean isTimestampValid(String timestamp, long toleranceSeconds) {
+    long ts = Long.parseLong(timestamp);
+    long now = System.currentTimeMillis() / 1000;
+    return Math.abs(now - ts) < toleranceSeconds;
+}
+```
+
+```csharp C#
+public static bool IsTimestampValid(string timestamp, int toleranceSeconds = 300)
+{
+    var ts = long.Parse(timestamp);
+    var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+    return Math.Abs(now - ts) < toleranceSeconds;
+}
+```
+</CodeGroup>
+
+<Warning>
+Always validate the timestamp **before** processing the webhook. Replayed requests with old timestamps should be discarded even if the signature is valid.
+</Warning>

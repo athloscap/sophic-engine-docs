@@ -1,43 +1,134 @@
-# Mintlify Starter Kit
+# Sophic Engine Documentation
 
-Use the starter kit to get your docs deployed and ready to customize.
+Source for the Sophic Engine API documentation, built with [Mintlify](https://mintlify.com).
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+## Local development
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+Install the [Mintlify CLI](https://www.npmjs.com/package/mint):
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
-
-## Development
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
-
-```
+```bash
 npm i -g mint
 ```
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
+Run the dev server from the root of this repo (where `docs.json` lives):
 
-```
+```bash
 mint dev
 ```
 
-View your local preview at `http://localhost:3000`.
-
-## Publishing changes
-
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
-
-## Need help?
+Preview at `http://localhost:3000`. Changes to `.mdx` files and `docs.json` are reflected automatically.
 
 ### Troubleshooting
 
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
+- **Dev server won't start:** Run `mint update` to get the latest CLI version.
+- **Page shows 404:** Make sure the page is listed in `docs.json` and the file path matches.
 
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+## Project structure
+
+```
+docs.json                       # Site config, navigation, OpenAPI spec
+documentation/                  # Guides and how-to content ("Documentation" tab)
+  introduction.mdx
+  webhooks/
+    ...
+  ...
+api-reference/                  # API reference topics ("API Reference" tab)
+  auth.mdx
+  errors.mdx
+  versioning.mdx
+  ...
+changelog.mdx                  # Changelog ("Changelog" tab)
+```
+
+## Adding pages and endpoints
+
+### Adding a new documentation page
+
+1. Create a new `.mdx` file in the appropriate directory (e.g. `documentation/webhooks/quickstart.mdx`).
+2. Add frontmatter with at least a `title`:
+   ```yaml
+   ---
+   title: Quickstart
+   description: "Get up and running with webhooks in minutes"
+   ---
+   ```
+3. Add the page path to `docs.json` under the relevant group in the `Documentation` tab:
+   ```json
+   {
+     "group": "Webhooks",
+     "pages": [
+       "documentation/webhooks/overview",
+       "documentation/webhooks/quickstart"
+     ]
+   }
+   ```
+
+### Adding a new API endpoint
+
+API endpoint pages are auto-generated from the OpenAPI spec. To add one to the sidebar:
+
+1. Make sure the endpoint exists in the OpenAPI spec (`api.openapi` in `docs.json`).
+2. Add the endpoint to the relevant group in the `API Reference` tab using the format `"METHOD /path"`:
+   ```json
+   {
+     "group": "Webhooks",
+     "pages": [
+       "POST /webhooks",
+       "GET /webhooks/{webhook_id}"
+     ]
+   }
+   ```
+
+### Adding a new topic page alongside endpoints
+
+You can mix static `.mdx` pages with auto-generated endpoint pages in the same group:
+
+```json
+{
+  "group": "Topics",
+  "pages": [
+    "api-reference/auth",
+    "api-reference/errors",
+    "POST /auth/token"
+  ]
+}
+```
+
+### Adding a new sidebar group
+
+Add a new object to the `groups` array inside the relevant tab:
+
+```json
+{
+  "group": "New Section",
+  "pages": [
+    "documentation/new-section/overview"
+  ]
+}
+```
+
+## Writing documentation
+
+### Tone of voice
+
+Write as if you're a knowledgeable colleague explaining something to a fellow developer. The tone should be:
+
+- **Conversational but precise.** Use "we" to refer to the API and "you" to address the reader. Avoid stiff, formal phrasing — prefer "you'll need to" over "it is necessary to".
+- **Helpful, not patronizing.** Assume the reader is a competent developer. Don't over-explain obvious things, but do explain the non-obvious — the *why*, not just the *what*.
+- **Direct.** Get to the point. Lead with what the reader needs to know, then provide context. Put examples close to the concepts they illustrate.
+
+### Content guidelines
+
+- **Start with the outcome.** Open each page by explaining what the reader will learn or be able to do.
+- **Use examples liberally.** Every concept should have a code example or a concrete illustration. Provide examples in multiple languages where possible using `<CodeGroup>`.
+- **Explain trade-offs and gotchas.** Don't just document the happy path. If something can go wrong (e.g. JSON re-serialization breaking HMAC checks), call it out with a `<Note>` or `<Warning>`.
+- **Link to related pages.** Cross-reference other pages in the docs and API reference so readers can easily navigate.
+- **Keep pages focused.** Each page should cover one topic well. If a page is getting long, consider splitting it.
+
+### References
+
+We model our documentation after [Stripe's API docs](https://docs.stripe.com/api) and [Persona's developer docs](https://docs.withpersona.com). Both are excellent examples of clear, thorough, developer-friendly documentation.
+
+## Deployment
+
+Pushing to the default branch automatically deploys via the [Mintlify GitHub app](https://dashboard.mintlify.com/settings/organization/github-app).

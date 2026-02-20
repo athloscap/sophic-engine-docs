@@ -1,0 +1,28 @@
+---
+title: Best Practices
+description: "Recommendations for building a reliable webhook integration"
+---
+
+### Respond quickly
+
+Return a `2xx` response as soon as you can. We recommend offloading any heavy processing to a background job or queue rather than doing it inline. If your handler takes too long to respond, we'll treat it as a failure and retry the delivery.
+
+### Use HTTPS
+
+Your webhook endpoint needs to use HTTPS. We won't deliver events to insecure HTTP URLs.
+
+### Verify signatures
+
+Always [verify](/documentation/webhooks/verifying-signatures) the `Webhook-Signature` header and reject requests with invalid or stale timestamps. This helps protect your integration from forged or replayed requests.
+
+### Handle retries gracefully
+
+Your endpoint may receive the same event more than once, so it's important to make your handler [idempotent](/documentation/webhooks/deliveries#handling-duplicates). Using the `Webhook-Id` header to deduplicate deliveries is a simple and effective approach.
+
+### Monitor failures
+
+We recommend setting up alerting for webhook delivery failures. If deliveries are consistently failing, you can use the [List events](/api-reference/events/get-events) endpoint to reconcile any missed events and replay them as needed.
+
+### Check the attempt number
+
+The `Webhook-Attempt` header tells you which retry attempt a delivery is on. Logging this value can help you spot issues with your endpoint — high retry rates often point to slow response times or intermittent errors.
