@@ -183,7 +183,18 @@ When we rotate a webhook signing secret, both the old and new secrets remain act
 Webhook-Signature: v1,a1b2c3d4e5f60718293a4b5c6d7e8f90... v1,f6e5d4c3b2a10987fedc6b5a4938271...
 ```
 
-Your verification code should accept the delivery if **any** of the signatures is valid. This means you can continue using your current secret while we complete the rotation — no changes are needed on your end until the old secret is fully retired.
+Your verification code should accept the delivery if **any** of the signatures is valid. This gives you a grace period to update your stored secret without missing any deliveries.
+
+When we rotate a secret, here's what to expect:
+
+1. We'll notify you that a rotation is starting.
+2. Both the old and new secrets become active — deliveries are signed with both.
+3. You have **48 hours** to update your verification code to use the new secret.
+4. After 48 hours, the old secret is retired and only the new secret will be used to sign deliveries.
+
+<Warning>
+Make sure to update your stored secret within the 48-hour window. Once the old secret is retired, deliveries will only be signed with the new secret and your verification will fail if you're still using the old one.
+</Warning>
 
 ## Rejecting stale webhooks
 
