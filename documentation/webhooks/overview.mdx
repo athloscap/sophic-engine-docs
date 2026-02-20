@@ -1,0 +1,118 @@
+---
+title: Overview
+description: "Receive real-time event notifications"
+---
+
+Webhooks let you receive real-time HTTP notifications when events happen in your account. Instead of polling the API for changes, you register a URL and we'll send a `POST` request to it whenever a relevant event is triggered.
+
+## Setting up a webhook
+
+To get started, use the [Create webhook](/api-reference/create-a-webhook) endpoint to register a webhook URL.
+
+Each webhook subscription requires:
+- A destination **URL** (must be HTTPS)
+- One or more **event types** to subscribe to
+
+```bash
+curl -X POST https://api.engine.usesophic.com/webhooks \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://your-app.com/webhooks/sophic",
+    "events": ["order.filled", "deposit.completed"]
+  }'
+```
+
+## Webhook headers
+
+Every webhook delivery includes the following HTTP headers:
+
+| Header | Description |
+|---|---|
+| `Content-Type` | Always `application/json`. |
+| `Webhook-Id` | The unique ID of this delivery (e.g. `whd_abc123`). Use this to [deduplicate](/documentation/webhooks/deliveries#handling-duplicates) retried deliveries. |
+| `Webhook-Timestamp` | Unix timestamp (seconds) of when the delivery was dispatched. Use this to [reject stale messages](/documentation/webhooks/verifying-signatures#rejecting-stale-webhooks). |
+| `Webhook-Signature` | HMAC-SHA256 signature(s) of the payload. Multiple signatures may be present during [secret rotation](/documentation/webhooks/verifying-signatures#secret-rotation). |
+| `Webhook-Attempt` | 1-indexed attempt number for this delivery. `1` on the first try, incremented on each retry. |
+| `Event-Id` | The ID of the originating event (e.g. `evt_abc123`). Not present on test deliveries. |
+
+## Receiving webhooks
+
+When an event occurs, we send a `POST` request to your registered URL. The webhook payload follows the same schema as the [Event](/api-reference/events/get-events) resource:
+
+```json
+{
+  "id": "evt_abc123",
+  "name": "order.filled",
+  "resource": {
+    "id": "ord_xyz789",
+    "resource_type": "order"
+  },
+  "data": {
+    // ... event-specific data
+  },
+  "created_at": "2026-01-15T10:30:00Z"
+}
+```
+
+Your endpoint should return a `2xx` status code within **15 seconds** to acknowledge receipt. Any other status code, timeout, or connection error is treated as a failed delivery and will be [retried](/documentation/webhooks/deliveries#retry-schedule). The maximum time we'll wait for a response is 25 seconds (5s connect + 15s read + 5s write).
+
+## CSRF protection
+
+If you use Rails, Django, or another web framework, your site might automatically check that every `POST` request contains a CSRF token. This is an important security feature, but it can also prevent your site from processing legitimate webhook events. If so, you may need to exempt your webhook route from CSRF protection.
+
+<CodeGroup>
+```python Python (Django)
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+
+@require_POST
+@csrf_exempt
+def webhook(request):
+    # Process webhook payload
+    ...
+```
+
+```ruby Ruby (Rails)
+class WebhooksController < ApplicationController
+  protect_from_forgery except: :handle
+
+  def handle
+    # Process webhook payload
+  end
+end
+```
+
+```java Java (Spring)
+@RestController
+@RequestMapping("/webhooks")
+public class WebhookController {
+    // Spring Security: configure your SecurityFilterChain
+    // to disable CSRF for the webhook endpoint.
+    //
+    //   http.csrf(csrf -> csrf
+    //       .ignoringRequestMatchers("/webhooks/**")
+    //   );
+
+    @PostMapping
+    public ResponseEntity<Void> handle(@RequestBody String body) {
+        // Process webhook payload
+        return ResponseEntity.ok().build();
+    }
+}
+```
+
+```csharp C# (ASP.NET)
+// In Program.cs, configure the antiforgery middleware
+// to skip your webhook route:
+//
+//   app.MapPost("/webhooks", [IgnoreAntiforgeryToken] async (HttpContext ctx) =>
+//   {
+//       // Process webhook payload
+//   });
+```
+</CodeGroup>
+
+## Testing
+
+You can use the [Test webhook](/api-reference/test-webhook-delivery) endpoint to send a test delivery to your URL during development. You specify the event `name` and `data` in the request body, and we'll dispatch a delivery to your webhook endpoint. Test deliveries don't include the `Event-Id` header since no real event is created.

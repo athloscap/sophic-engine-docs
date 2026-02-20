@@ -1,0 +1,134 @@
+---
+title: Deliveries & Retries
+description: "How webhook deliveries are tracked and retried"
+---
+
+A **Webhook Delivery** tracks the delivery attempts for an event to a webhook endpoint. When an event is dispatched, we create a delivery for each matching webhook subscription. Each delivery has its own unique ID (sent in the `Webhook-Id` header) and progresses through the following statuses:
+
+| Status | Description |
+|---|---|
+| `pending` | The delivery has been created and is waiting to be dispatched. |
+| `in_progress` | The delivery is actively being attempted. |
+| `succeeded` | Your endpoint returned a `2xx` response. |
+| `failed` | All retry attempts have been exhausted without a successful response. |
+
+## Retry schedule
+
+We use **at-least-once delivery**, which means we guarantee that every event reaches your endpoint at least once — but it may arrive more than once in some cases (see [Handling duplicates](#handling-duplicates)).
+
+If your endpoint doesn't return a `2xx` response, we'll retry the delivery with exponential backoff and jitter, up to **10 attempts**:
+
+| Attempt | Average delay | Maximum delay |
+|---|---|---|
+| 1 | Immediate | — |
+| 2 | ~0.5s | 1s |
+| 3 | ~3s | 6s |
+| 4 | ~18s | 36s |
+| 5 | ~1m 48s | 3m 36s |
+| 6 | ~10m 48s | 21m 36s |
+| 7 | ~1h 4m | 2h 9m |
+| 8 | ~6h 28m | 12h 57m |
+| 9 | ~12h | 24h |
+| 10 | ~12h | 24h |
+
+The total delivery window spans approximately **43 hours on average** and up to **3.6 days** in the worst case. After 10 failed attempts, the delivery is marked as `failed` and no further retries are made.
+
+## Delivery attempt errors
+
+Each failed delivery attempt records the type of error encountered:
+
+| Error type | Description |
+|---|---|
+| `http` | Your endpoint returned a non-2xx HTTP status code. |
+| `timeout` | The connection or read timed out. |
+| `dns` | DNS resolution for your endpoint failed. |
+| `tls` | TLS certificate verification failed. |
+| `connection` | The connection was refused, reset, or a network error occurred. |
+| `validation` | The webhook URL failed validation (e.g. it resolves to a private IP address). |
+| `unknown` | An unhandled exception occurred during delivery. |
+
+## Handling duplicates
+
+Because delivery is at-least-once, your webhook endpoints may occasionally receive the same event more than once. We recommend making your event processing idempotent to handle this gracefully. A straightforward approach is to use the `Webhook-Id` header to deduplicate:
+
+1. When you receive a delivery, check whether you've already processed a delivery with that `Webhook-Id`.
+2. If you have, return `200` immediately without reprocessing.
+3. If you haven't, process the event and record the ID.
+
+<CodeGroup>
+```python Python
+def handle_webhook(request):
+    delivery_id = request.headers["Webhook-Id"]
+
+    if already_processed(delivery_id):
+        return 200
+
+    process_event(request.json())
+    mark_processed(delivery_id)
+    return 200
+```
+
+```javascript Node.js
+function handleWebhook(req, res) {
+  const deliveryId = req.headers["webhook-id"];
+
+  if (alreadyProcessed(deliveryId)) {
+    return res.sendStatus(200);
+  }
+
+  processEvent(req.body);
+  markProcessed(deliveryId);
+  return res.sendStatus(200);
+}
+```
+
+```go Go
+func handleWebhook(w http.ResponseWriter, r *http.Request) {
+    deliveryID := r.Header.Get("Webhook-Id")
+
+    if alreadyProcessed(deliveryID) {
+        w.WriteHeader(http.StatusOK)
+        return
+    }
+
+    processEvent(r.Body)
+    markProcessed(deliveryID)
+    w.WriteHeader(http.StatusOK)
+}
+```
+
+```java Java
+@PostMapping("/webhooks")
+public ResponseEntity<Void> handleWebhook(
+        @RequestHeader("Webhook-Id") String deliveryId,
+        @RequestBody String body) {
+
+    if (alreadyProcessed(deliveryId)) {
+        return ResponseEntity.ok().build();
+    }
+
+    processEvent(body);
+    markProcessed(deliveryId);
+    return ResponseEntity.ok().build();
+}
+```
+
+```csharp C#
+app.MapPost("/webhooks", async (HttpContext ctx) =>
+{
+    var deliveryId = ctx.Request.Headers["Webhook-Id"].ToString();
+
+    if (AlreadyProcessed(deliveryId))
+        return Results.Ok();
+
+    var body = await new StreamReader(ctx.Request.Body).ReadToEndAsync();
+    ProcessEvent(body);
+    MarkProcessed(deliveryId);
+    return Results.Ok();
+});
+```
+</CodeGroup>
+
+## Ordering
+
+The order of your received webhook events may not match the order they were created. Network latency and retries can cause events to arrive out of sequence. If you need to determine the correct order, use the `created_at` timestamp on each event rather than relying on delivery order.
