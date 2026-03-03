@@ -17,7 +17,7 @@ export const httpStatuses = [
     },
     {
         status: "202",
-        description: "The request has been accepted for processing, but the processing has not been completed. This is used for asynchronous operations like testing webhooks."
+        description: "The request has been accepted for processing, but the processing has not been completed. This is used for asynchronous operations."
     },
     {
         status: "400",
