@@ -2,15 +2,18 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Sophic Engine",
+  "fonts": {
+    "family": "Geist"
+  },
   "colors": {
     "primary": "#2A3141",
     "light": "#E6EDF3",
     "dark": "#FF0000"
   },
   "styling": {
-    "eyebrows": "breadcrumbs",
+    "eyebrows": "section",
     "codeblocks": {
-      "theme": "github-light"
+      "theme": "catppuccin-mocha"
     }
   },
   "contextual": {
