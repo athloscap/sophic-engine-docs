@@ -30,7 +30,7 @@ Every webhook delivery includes the following HTTP headers:
 | `Webhook-Timestamp` | Unix timestamp (seconds) of when the delivery was dispatched. Use this to [reject stale messages](/docs/webhooks/verifying-signatures#rejecting-stale-webhooks). |
 | `Webhook-Signature` | HMAC-SHA256 signature(s) of the payload. Multiple signatures may be present during [secret rotation](/docs/webhooks/verifying-signatures#secret-rotation). |
 | `Webhook-Attempt` | 1-indexed attempt number for this delivery. `1` on the first try, incremented on each retry. |
-| `Event-Id` | The ID of the originating event (e.g. `evt_abc123`). Not present on test deliveries. |
+| `Event-Id` | The ID of the originating event (e.g. `evt_abc123`). |
 
 ## Receiving webhooks
 
@@ -109,6 +109,3 @@ public class WebhookController {
 ```
 </CodeGroup>
 
-## Testing
-
-You can use the [Test webhook](/api-reference/test-webhook-delivery) endpoint to send a test delivery to your URL during development. You specify the event `name` and `data` in the request body, and we'll dispatch a delivery to your webhook endpoint. Test deliveries don't include the `Event-Id` header since no real event is created.

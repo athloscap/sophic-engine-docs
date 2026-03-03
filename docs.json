@@ -171,8 +171,7 @@
               "POST /webhooks",
               "GET /webhooks/{webhook_id}",
               "GET /webhooks",
-              "PUT /webhooks/{webhook_id}",
-              "POST /webhooks/{webhook_id}/test"
+              "PUT /webhooks/{webhook_id}"
             ]
           }
         ]
