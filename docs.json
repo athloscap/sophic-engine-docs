@@ -50,6 +50,12 @@
             ]
           },
           {
+            "group": "Architecture",
+            "pages": [
+              "docs/architecture/data-model"
+            ]
+          },
+          {
             "group": "Webhooks",
             "pages": [
               "docs/webhooks/overview",

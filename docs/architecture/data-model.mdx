@@ -1,0 +1,139 @@
+---
+title: Data Model
+description: "A high-level overview of the core entities and how they relate to each other"
+---
+
+This page walks through the core entities in the platform, what they represent, and how they connect. It's meant to give you a mental model of the system — whether you're building an integration or just getting oriented.
+
+## Customers and accounts
+
+Everything starts with a **Customer**. A customer represents an end-user — typically the person or entity on whose behalf your platform operates. Each customer owns one or more **Accounts**, and accounts are where nearly all activity happens: trading, payments, holdings, billing, and more.
+
+Think of the customer as the identity layer and the account as the operational layer.
+
+<Frame>
+```
+Customer
+ └── Account
+      ├── Positions (holdings)
+      ├── Cash Balances
+      ├── Orders (trading)
+      ├── Deposits & Withdrawals (payments)
+      ├── Funding Accounts
+      ├── Transactions
+      ├── Valuation & Valuation History
+      ├── Earnings (performance)
+      └── Fee Charges (billing)
+```
+</Frame>
+
+Accounts are the central resource — most API endpoints are scoped to an account. For example, you fetch positions, place orders, and initiate payments all under `/accounts/{account_id}/...`.
+
+Accounts can also be looked up by your own external reference in addition to our internal ID, making it easy to map between your system and ours.
+
+## Catalog: instruments and prices
+
+The **Catalog** is our shared reference data. It contains two key resources:
+
+- **Instruments** — the financial products available on the platform (stocks, ETFs, funds, etc.). Each instrument has a unique ID and a symbol. You can look up an instrument by either.
+- **Prices** — the latest market prices for instruments. We use prices for order validation, valuation, and performance calculations.
+
+The catalog is read-only from your perspective — we maintain the universe of instruments and their pricing data.
+
+## Trading
+
+When you place a trade on behalf of a customer, you create an **Order** on their account. An order represents the intent to buy or sell a specific quantity of an instrument.
+
+Orders go through a lifecycle. They start as **Pending Orders** (visible via a dedicated endpoint) and eventually resolve — either filling successfully or being cancelled. Key error scenarios include:
+
+- The instrument isn't currently tradable (`instrument_not_trading`)
+- The account has insufficient funds or units (`insufficient_funds`, `insufficient_units`)
+- Buy or sell orders aren't enabled for the account (`buy_order_forbidden`, `sell_order_forbidden`)
+
+When orders fill, the account's **Positions** and **Cash Balances** update to reflect the new holdings.
+
+## Holdings
+
+An account's holdings consist of two things:
+
+- **Positions** — the instruments the account currently holds, along with quantity and cost information. Each position is tied to a specific instrument from the catalog.
+- **Cash Balances** — the monetary balances in the account, potentially across multiple currencies.
+
+Together, positions and cash balances represent the full picture of what an account owns.
+
+## Payments: deposits and withdrawals
+
+Money moves in and out of accounts through **Deposits** and **Withdrawals**.
+
+Before a customer can make a payment, they need at least one **Funding Account** — typically a bank account identified by an IBAN and bank code. Funding accounts are linked to the customer's account and serve as the source for deposits and the destination for withdrawals.
+
+Payments go through their own lifecycle and can fail if, for example, withdrawals aren't enabled for the account (`withdrawal_forbidden`) or a deposit is rejected (`deposit_forbidden`).
+
+Deposits can also support an advance mechanism (when enabled), allowing the account to trade before the deposit settles. Refunds are available on payments up to the refundable amount.
+
+## Valuation and performance
+
+- **Valuation** gives you the current total value of an account, combining positions (at current market prices) and cash balances into a single figure.
+- **Valuation History** provides historical snapshots so you can see how account value has changed over time.
+- **Earnings** are the performance metrics for an account — how much the account has gained or lost.
+
+These are all computed resources. You read them, but we calculate them based on positions, prices, and transaction history.
+
+## Billing
+
+We track billing through **Fee Charges**. A fee charge represents a specific billing event applied to an account — you can look up individual fee charges by ID.
+
+## Files and legal documents
+
+We have a lightweight document management system built around two concepts:
+
+- **Files** — uploaded via a two-step process. First, you request a **Signed Upload** URL, upload the file content directly to cloud storage, and then register the file with our API. This keeps large file content off the API itself.
+- **Legal Documents** — represent versioned legal agreements (terms of service, disclosures, etc.). Each legal document is created with its first version and can have multiple **Legal Document Versions** over time. Every version points to a file. You can always retrieve the latest version's file directly, or fetch a specific historical version.
+
+<Note>
+A legal document always has at least one version — we create the document and its first version in a single transaction, so there's no such thing as an empty legal document without content.
+</Note>
+
+## Events and webhooks
+
+Whenever something meaningful happens (an order fills, a payment completes, etc.), we create an **Event**. Events have a name (e.g., `order.filled`), a reference to the resource that changed, and event-specific data.
+
+You can poll for events via the API, but the real-time path is **Webhooks**. A webhook is a URL you register with us. When events fire, we create a **Webhook Delivery** for each active webhook subscription and `POST` the event payload to your endpoint.
+
+Deliveries are tracked with their own lifecycle (`pending` → `in_progress` → `succeeded` or `failed`) and are retried automatically if your endpoint doesn't respond with a `2xx`. For full details on delivery mechanics, retries, and deduplication, see the [Webhooks documentation](/docs/webhooks/overview).
+
+## How it all connects
+
+Here's a summary of the key relationships:
+
+| Parent | Child | Relationship |
+|---|---|---|
+| Customer | Account | A customer has one or more accounts |
+| Account | Position | An account holds zero or more positions |
+| Account | Cash Balance | An account has one or more cash balances (by currency) |
+| Account | Order | Orders are placed on an account |
+| Account | Deposit / Withdrawal | Payments move money in and out of an account |
+| Account | Funding Account | Bank accounts linked for payments |
+| Account | Transaction | A ledger of all financial activity on the account |
+| Account | Valuation | Computed current value of the account |
+| Account | Earnings | Computed performance metrics |
+| Account | Fee Charge | Billing events on the account |
+| Instrument | Position | Each position references an instrument |
+| Instrument | Price | Prices are published per instrument |
+| Instrument | Order | Each order targets an instrument |
+| Legal Document | Legal Document Version | A document has one or more versions |
+| Legal Document Version | File | Each version references an uploaded file |
+| Event | Webhook Delivery | One delivery per event per active webhook |
+| Webhook | Webhook Delivery | Deliveries are dispatched to a webhook endpoint |
+
+## ID conventions
+
+Every resource in the system has a unique ID. IDs are prefixed with a short resource identifier (e.g., `evt_` for events, `ord_` for orders, `whd_` for webhook deliveries). Treat IDs as opaque strings — don't parse or make assumptions about their format. See [Best practices](/api-reference/best-practices) for more on working with IDs.
+
+## Further reading
+
+- [API Authentication](/api-reference/auth) — how to obtain and use access tokens
+- [Webhooks](/docs/webhooks/overview) — real-time event delivery setup and handling
+- [Deliveries & Retries](/docs/webhooks/deliveries) — webhook delivery lifecycle and retry behavior
+- [Errors](/api-reference/errors) — error response format and debugging
+- [Versioning](/api-reference/versioning) — our API versioning and compatibility policy
