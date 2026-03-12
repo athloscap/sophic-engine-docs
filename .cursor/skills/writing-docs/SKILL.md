@@ -4,7 +4,10 @@ globs: "**/*.mdx"
 alwaysApply: false
 ---
 
-When writing or editing documentation pages, follow the guidelines in the "Writing documentation" section of the project README.md.
+# Writing Documentation
+
+When writing or editing documentation pages, follow the guidelines in the "Writing
+documentation" section of the project README.md.
 
 ## Key rules
 
@@ -18,4 +21,5 @@ When writing or editing documentation pages, follow the guidelines in the "Writi
 
 ## Style reference
 
-We model our docs after [Stripe](https://docs.stripe.com/api) and [Persona](https://docs.withpersona.com). When unsure about structure or tone, consult those as examples.
+We model our docs after [Stripe](https://docs.stripe.com/api) and [Persona](https://docs.withpersona.com).
+When unsure about structure or tone, consult those as examples.

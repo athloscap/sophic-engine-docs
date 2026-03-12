@@ -1,0 +1,32 @@
+---
+title: Best Practices
+description: "Recommendations for building a reliable order integration"
+---
+
+### Use idempotency keys
+
+Network errors can leave you unsure whether an order was placed. Include an [Idempotency-Key](/api-reference/idempotency) header on every `POST /orders` request so you can safely retry without risking duplicate orders.
+
+<Note>
+Idempotency key support for order placement is currently under development. We'll update this guide when it's available.
+</Note>
+
+### Listen to webhooks, don't poll in a loop
+
+Polling the order status endpoint in a tight loop wastes resources and may hit rate limits. Set up [webhooks](/docs/webhooks/overview) for real-time updates and only poll as a fallback for reconciliation.
+
+### Check balances before placing orders
+
+Verify that the account has sufficient cash (for buys) or units (for sells) before submitting the order. This avoids unnecessary `insufficient_funds` and `insufficient_units` errors and gives you a chance to surface helpful messages to your users.
+
+### Handle all terminal states
+
+Your integration should handle both `settled` and `cancelled` as terminal states. Don't assume every order will settle — always implement a path for cancellations, including system-initiated ones.
+
+### Store order IDs
+
+Persist the order ID returned from the place order call. You'll need it to poll for status updates or correlate webhook events.
+
+### Distinguish buy and sell semantics
+
+Buy orders use `cash_amount` (how much to invest), while sell orders use `quantity` (how many units to sell). Sending the wrong field for the order side will result in a validation error. Double-check that your integration uses the right field based on the `side`.

@@ -21,13 +21,10 @@ Keep the `docs.json` navigation in sync with the OpenAPI specification.
 
 3. **Identify missing endpoints.** Any endpoint in the spec that isn't listed in `docs.json` needs to be added.
 
-4. **Add to the correct group.** Place the endpoint in the group that matches its resource. Use the format:
-   ```
-   "METHOD /path/{param}"
-   ```
-   For example: `"POST /webhooks"`, `"GET /accounts/{account_id}/positions"`.
+4. **Add to the correct group.** Place the endpoint in the group that matches its resource using the format `"METHOD /path"`.
 
 5. **Create a new group if needed:**
+
    ```json
    {
      "group": "New Resource",
@@ -44,6 +41,7 @@ Keep the `docs.json` navigation in sync with the OpenAPI specification.
 ## Endpoint ordering convention
 
 Within each group, order endpoints as:
+
 1. `POST` (create)
 2. `GET /{id}` (retrieve single)
 3. `GET /` (list)

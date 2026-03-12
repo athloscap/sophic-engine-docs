@@ -52,7 +52,10 @@
           {
             "group": "Orders",
             "pages": [
-              "docs/orders/placing-an-order"
+              "docs/orders/overview",
+              "docs/orders/lifecycle",
+              "docs/orders/errors",
+              "docs/orders/best-practices"
             ]
           },
           {
