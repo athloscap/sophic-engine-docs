@@ -21,5 +21,5 @@ documentation" section of the project README.md.
 
 ## Style reference
 
-We model our docs after [Stripe](https://docs.stripe.com/api) and [Persona](https://docs.withpersona.com).
+We model our docs after [Stripe](https://docs.stripe.com/api), [Persona](https://docs.withpersona.com), and [Column](https://column.com/docs/).
 When unsure about structure or tone, consult those as examples.

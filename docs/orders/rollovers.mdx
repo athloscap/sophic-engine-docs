@@ -1,0 +1,59 @@
+---
+title: Rollovers
+description: "How automatic rollovers work for treasury bill positions"
+---
+
+When a treasury bill matures, the investor receives the face value in cash. A **rollover** reinvests that cash into a new bill of a similar maturity, so the customer stays invested without any manual action.
+
+Rollovers apply to **bills only** — bonds don't support automatic rollovers.
+
+## How it works
+
+When a customer buys a bill with `automatic_rollover` set to `true`, we'll automatically place a new buy order for a similar bill before the current one matures. The goal is to keep the customer continuously invested in the same maturity bucket (e.g. 3-month or 6-month bills) without gaps.
+
+## Timing
+
+We place the rollover order **before** the bill matures — early enough that the new buy order can settle by the maturity date. The exact timing depends on the instrument's settlement cycle:
+
+| Settlement cycle | Rollover placed | Example |
+|---|---|---|
+| T+1 (US, GB bills) | 1 business day before maturity | Maturity on Monday → rollover placed on Friday |
+| T+2 (all other bills) | 2 business days before maturity | Maturity on Monday → rollover placed on Thursday |
+
+This ensures the new position is funded and settled by the time the old bill matures, keeping the customer fully invested.
+
+## Instrument selection
+
+We select a replacement bill in the same country and the same maturity period as the original. For example, if the customer held a 3-month French bill, we'll roll them into the current 3-month French bill (called the "on-the-run" bill).
+
+## What happens to the portfolio
+
+The rollover creates a brief period where the customer holds both the maturing bill and the new bill. Here's the sequence:
+
+<Steps>
+  <Step title="We place the rollover buy order">
+    A buy order is placed for the new bill, using the nominal value of the maturing position as the cash amount. This order has `purpose` set to `rollover`.
+  </Step>
+  <Step title="The new position is created">
+    Once the rollover order executes, the customer has a new position in the replacement bill. Cash is debited from the account to fund this purchase — this means the account's cash balance may go negative until the old bill matures and pays out.
+  </Step>
+  <Step title="The old bill matures">
+    On the maturity date, the old bill's face value is credited back to the account as cash, and the old position is closed.
+  </Step>
+</Steps>
+
+During the window between the rollover trade and maturity, the account temporarily holds both positions. The cash balance is lower than usual because the new buy has been funded but the maturing bill hasn't paid out yet. This resolves once the old bill matures and the cash is credited.
+
+**After the rollover completes:**
+
+- The old position is closed.
+- The new position is open with `automatic_rollover` enabled, so it will roll over again at its own maturity.
+- The cash balance is restored once the matured bill pays out.
+
+## Rollover cutoff
+
+Customers can toggle `automatic_rollover` on or off for a position, but there's a cutoff: changes are locked **4 days before maturity**. After that point, the rollover will proceed as previously configured.
+
+## Webhook events
+
+Rollover orders fire the same [order events](/docs/orders/lifecycle#webhook-events) as any other order (`order.placed`, `order.filled`, etc.). You can distinguish them by checking the `purpose` field on the order — rollover orders have `purpose` set to `rollover`.

@@ -54,6 +54,7 @@
             "pages": [
               "docs/orders/overview",
               "docs/orders/lifecycle",
+              "docs/orders/rollovers",
               "docs/orders/errors",
               "docs/orders/best-practices"
             ]
