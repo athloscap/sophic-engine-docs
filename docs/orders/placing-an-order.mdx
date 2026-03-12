@@ -1,0 +1,334 @@
+---
+title: Placing an Order
+description: "Place buy and sell orders and track them through to fill or cancellation"
+---
+
+Orders are how you buy and sell instruments on behalf of your customers. You submit an order through our API, and we handle validation, execution, and settlement asynchronously. This guide walks you through creating an order, understanding its lifecycle, and reacting to status changes.
+
+## Before you start
+
+To place an order, you'll need:
+
+- An [authenticated API session](/api-reference/auth) with a valid Bearer token
+- An **account ID** for the customer placing the order
+- The **instrument symbol or ID** for the security being traded — you can look these up via the [instruments](/api-reference/get-instruments) endpoints
+- Sufficient **cash balance** (for buy orders) or **position units** (for sell orders) in the account
+
+<Tip>
+You can check available cash and positions using the [cash balances](/api-reference/get-cash-balances) and [positions](/api-reference/get-positions) endpoints before placing an order.
+</Tip>
+
+## Creating an order
+
+To place an order, send a `POST` request to the [Create order](/api-reference/create-order) endpoint:
+
+<CodeGroup>
+```python Python
+import requests
+
+response = requests.post(
+    "https://api.engine.usesophic.com/accounts/acc_abc123/orders",
+    headers={
+        "Authorization": "Bearer YOUR_ACCESS_TOKEN",
+        "Content-Type": "application/json",
+    },
+    json={
+        "instrument_id": "ins_xyz789",
+        "side": "buy",
+        "quantity": "10",
+        "currency": "USD",
+    },
+)
+order = response.json()
+print(order["id"], order["status"])
+```
+
+```javascript Node.js
+const response = await fetch(
+  "https://api.engine.usesophic.com/accounts/acc_abc123/orders",
+  {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer YOUR_ACCESS_TOKEN",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      instrument_id: "ins_xyz789",
+      side: "buy",
+      quantity: "10",
+      currency: "USD",
+    }),
+  }
+);
+const order = await response.json();
+console.log(order.id, order.status);
+```
+
+```go Go
+package main
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
+func main() {
+	body, _ := json.Marshal(map[string]string{
+		"instrument_id": "ins_xyz789",
+		"side":          "buy",
+		"quantity":      "10",
+		"currency":      "USD",
+	})
+
+	req, _ := http.NewRequest("POST",
+		"https://api.engine.usesophic.com/accounts/acc_abc123/orders",
+		bytes.NewBuffer(body))
+	req.Header.Set("Authorization", "Bearer YOUR_ACCESS_TOKEN")
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, _ := http.DefaultClient.Do(req)
+	defer resp.Body.Close()
+
+	var order map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&order)
+	fmt.Println(order["id"], order["status"])
+}
+```
+
+```java Java
+HttpClient client = HttpClient.newHttpClient();
+String json = """
+    {
+        "instrument_id": "ins_xyz789",
+        "side": "buy",
+        "quantity": "10",
+        "currency": "USD"
+    }
+    """;
+
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api.engine.usesophic.com/accounts/acc_abc123/orders"))
+    .header("Authorization", "Bearer YOUR_ACCESS_TOKEN")
+    .header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString(json))
+    .build();
+
+HttpResponse<String> response = client.send(request,
+    HttpResponse.BodyHandlers.ofString());
+System.out.println(response.body());
+```
+
+```csharp C#
+using var client = new HttpClient();
+client.DefaultRequestHeaders.Add("Authorization", "Bearer YOUR_ACCESS_TOKEN");
+
+var payload = new {
+    instrument_id = "ins_xyz789",
+    side = "buy",
+    quantity = "10",
+    currency = "USD"
+};
+
+var response = await client.PostAsJsonAsync(
+    "https://api.engine.usesophic.com/accounts/acc_abc123/orders",
+    payload);
+
+var order = await response.Content.ReadFromJsonAsync<JsonElement>();
+Console.WriteLine($"{order.GetProperty("id")} {order.GetProperty("status")}");
+```
+</CodeGroup>
+
+The response includes the order with its initial status:
+
+```json
+{
+  "id": "ord_m4k7r9s2",
+  "account_id": "acc_abc123",
+  "instrument_id": "ins_xyz789",
+  "side": "buy",
+  "quantity": "10",
+  "currency": "USD",
+  "status": "new",
+  "created_at": "2026-03-12T14:30:00Z",
+  "updated_at": "2026-03-12T14:30:00Z"
+}
+```
+
+<Note>
+Order creation is synchronous — we validate the request and return the order immediately. Everything after that (execution, settlement) happens asynchronously. Use [webhooks](/docs/webhooks/overview) or poll the [Get order](/api-reference/get-order) endpoint to track progress.
+</Note>
+
+### Buy vs. sell
+
+Set the `side` field to `buy` or `sell`:
+
+- **Buy orders** acquire units of an instrument. We check that the account has sufficient cash balance to cover the order.
+- **Sell orders** dispose of units you already hold. We check that the account has a sufficient position in the instrument.
+
+### Specifying quantity
+
+The `quantity` field accepts a string-encoded decimal value. Use a string rather than a number to avoid floating-point precision issues.
+
+```json
+{ "quantity": "10" }
+```
+
+<Warning>
+If the account doesn't have enough cash (for buys) or units (for sells), we'll reject the order with an `insufficient_funds` or `insufficient_units` error. Check balances before placing the order to avoid unnecessary failures.
+</Warning>
+
+## Order lifecycle
+
+Every order moves through a defined set of statuses from creation to completion. Here's the full picture:
+
+| Status | Description |
+|---|---|
+| `new` | The order has been created and validated. It's queued for execution. |
+| `processing` | The order has been submitted for execution. |
+| `filled` | The order has been fully executed. Units and cash have been settled. |
+| `cancelled` | The order won't be executed. See [cancellation](#cancelling-an-order) for reasons. |
+
+### How an order reaches `filled`
+
+<Steps>
+  <Step title="You create the order">
+    You send a `POST` request with the instrument, side, quantity, and currency. We validate the request parameters, check that the instrument is tradable, and verify the account has sufficient funds or units. If everything checks out, the order is created with status `new`.
+  </Step>
+  <Step title="We submit the order for execution">
+    The order moves to `processing` once it's been submitted to our execution infrastructure. At this point, the order is actively being worked — we're matching it against available liquidity and executing the trade.
+  </Step>
+  <Step title="The order fills">
+    When execution completes, the order moves to `filled`. The account's cash balance and positions are updated to reflect the trade. For buy orders, you'll see a new or increased position; for sell orders, the position decreases and the cash balance increases.
+  </Step>
+</Steps>
+
+### How an order gets `cancelled`
+
+An order can be cancelled at multiple points:
+
+- **Before execution** — You can cancel an order while it's still `new` by calling the cancel endpoint (see [Cancelling an order](#cancelling-an-order)). This is a hard cancel; the order won't be executed.
+- **During execution** — If the order is already `processing`, cancellation is **best-effort**. We'll attempt to cancel it, but if execution has already completed, the order will be `filled` instead.
+- **By the system** — We'll automatically cancel an order if validation fails during processing (e.g., the instrument stops trading, or the account is suspended), or if execution fails for a reason that can't be retried.
+
+## Tracking your order
+
+### Polling
+
+You can check an order's current status at any time using the [Get order](/api-reference/get-order) endpoint:
+
+```bash
+curl https://api.engine.usesophic.com/accounts/acc_abc123/orders/ord_m4k7r9s2 \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+To list all orders for an account, use the [List orders](/api-reference/list-orders) endpoint. To list only orders that haven't reached a terminal state (`filled` or `cancelled`), use the [List pending orders](/api-reference/list-pending-orders) endpoint — this is useful for building dashboards or monitoring active trades.
+
+### Webhooks
+
+For real-time updates, [subscribe to webhooks](/docs/webhooks/overview). We fire an event whenever an order changes status:
+
+| Event | Fired when |
+|---|---|
+| `order.new` | An order is created. |
+| `order.processing` | An order is submitted for execution. |
+| `order.filled` | An order is fully executed. |
+| `order.cancelled` | An order is cancelled. |
+
+Each event payload includes the full order object:
+
+```json
+{
+  "id": "evt_n8p3q1w5",
+  "name": "order.filled",
+  "resource": {
+    "id": "ord_m4k7r9s2",
+    "resource_type": "order"
+  },
+  "data": {
+    "id": "ord_m4k7r9s2",
+    "account_id": "acc_abc123",
+    "instrument_id": "ins_xyz789",
+    "side": "buy",
+    "quantity": "10",
+    "filled_quantity": "10",
+    "currency": "USD",
+    "status": "filled",
+    "created_at": "2026-03-12T14:30:00Z",
+    "updated_at": "2026-03-12T14:30:05Z"
+  },
+  "created_at": "2026-03-12T14:30:05Z"
+}
+```
+
+<Note>
+Webhook delivery is at-least-once — your handler may receive the same event more than once. Use the event ID or `Webhook-Id` header to [deduplicate](/docs/webhooks/deliveries#handling-duplicates).
+</Note>
+
+## Cancelling an order
+
+You can cancel an order that hasn't been filled yet. The outcome depends on the order's current status:
+
+| Order status | Cancellation behavior |
+|---|---|
+| `new` | Immediate cancellation. The order moves directly to `cancelled`. |
+| `processing` | Best-effort cancellation. We'll attempt to cancel, but the order may still fill if execution has already completed. |
+| `filled` | Can't be cancelled — the trade has already settled. |
+| `cancelled` | Already cancelled; no action needed. |
+
+When an order is cancelled, the `order.cancelled` webhook event includes a reason indicating why:
+
+```json
+{
+  "name": "order.cancelled",
+  "data": {
+    "id": "ord_m4k7r9s2",
+    "status": "cancelled",
+    "cancellation_reason": "requested_by_client"
+  }
+}
+```
+
+<Warning>
+Don't assume a cancel request will always succeed. If the order is `processing`, it may fill before the cancellation takes effect. Always listen for the resulting webhook event (`order.cancelled` or `order.filled`) to confirm the outcome.
+</Warning>
+
+## Handling errors
+
+Here are the most common errors you'll encounter when placing orders, and what to do about them:
+
+| Error code | What it means | What to do |
+|---|---|---|
+| `insufficient_funds` | The account doesn't have enough cash to cover the buy order. | Check the account's [cash balance](/api-reference/get-cash-balances) before placing the order. |
+| `insufficient_units` | The account doesn't have enough units to sell. | Check the account's [positions](/api-reference/get-positions) before placing the order. |
+| `instrument_not_trading` | The instrument isn't currently tradable (e.g., market is closed or the instrument is suspended). | Retry later, or check the instrument's status via the [catalog](/api-reference/get-instrument). |
+| `invalid_trading_currency` | The instrument can't be traded in the requested currency. | Check which currencies the instrument supports. |
+| `buy_order_forbidden` | Buy orders aren't enabled for this account. | Contact support to enable buy orders for the account. |
+| `sell_order_forbidden` | Sell orders aren't enabled for this account. | Contact support to enable sell orders for the account. |
+| `missing_price` | We don't have pricing data for this instrument right now. | Retry after a short delay. This is usually transient. |
+| `order_cancel_forbidden` | The order can't be cancelled in its current state. | The order has likely already been filled or cancelled. Check its current status. |
+
+For a complete list of error codes and their meanings, see the [error codes reference](/api-reference/error-codes).
+
+## Best practices
+
+### Use idempotency keys
+
+Network errors can leave you unsure whether an order was placed. Include an [Idempotency-Key](/api-reference/idempotency) header on every `POST /orders` request so you can safely retry without risking duplicate orders.
+
+### Listen to webhooks, don't poll in a loop
+
+Polling the order status endpoint in a tight loop wastes resources and may hit rate limits. Set up [webhooks](/docs/webhooks/overview) for real-time updates and only poll as a fallback for reconciliation.
+
+### Check balances before placing orders
+
+Verify that the account has sufficient cash or units before submitting the order. This avoids unnecessary `insufficient_funds` and `insufficient_units` errors and gives you a chance to surface helpful messages to your users.
+
+### Handle all terminal states
+
+Your integration should handle both `filled` and `cancelled` as terminal states. Don't assume every order will fill — always implement a path for cancellations, including system-initiated ones.
+
+### Store order IDs
+
+Persist the order ID returned from the create call. You'll need it to poll for status updates, cancel the order, or correlate webhook events.

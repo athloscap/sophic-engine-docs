@@ -50,6 +50,12 @@
             ]
           },
           {
+            "group": "Orders",
+            "pages": [
+              "docs/orders/placing-an-order"
+            ]
+          },
+          {
             "group": "Webhooks",
             "pages": [
               "docs/webhooks/overview",
