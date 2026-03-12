@@ -1,0 +1,328 @@
+---
+title: Overview
+description: "Buy and sell instruments on behalf of your customers"
+---
+
+Orders are how you buy and sell instruments on behalf of your customers. You submit an order through our API, and we handle validation, execution, and settlement asynchronously.
+
+## Before you start
+
+To place an order, you'll need:
+
+- An [authenticated API session](/api-reference/auth) with a valid Bearer token
+- An **account ID** for the customer placing the order
+- The **instrument ID** for the security being traded — you can look these up via the [instruments endpoints](/api-reference/get-instruments)
+- Sufficient **cash balance** (for buy orders) or **position units** (for sell orders) in the account
+
+<Tip>
+You can check available cash and positions using the [cash balances](/api-reference/get-cash-balances) and [positions](/api-reference/get-positions) endpoints before placing an order.
+</Tip>
+
+## Placing an order
+
+Send a `POST` request to `/accounts/{account_id}/orders`. The request body depends on whether you're buying or selling.
+
+### Buy orders
+
+Buy orders are **cash-based** — you specify how much money to invest, not how many units to buy. We calculate the quantity based on the current price.
+
+<CodeGroup>
+```python Python
+import requests
+
+response = requests.post(
+    "https://api.engine.usesophic.com/accounts/{account_id}/orders",
+    headers={
+        "Authorization": "Bearer YOUR_ACCESS_TOKEN",
+        "Content-Type": "application/json",
+    },
+    json={
+        "instrument": "ins_xyz789",
+        "order_type": "market",
+        "side": "buy",
+        "cash_amount": "100.00",
+    },
+)
+order = response.json()
+```
+
+```javascript Node.js
+const response = await fetch(
+  "https://api.engine.usesophic.com/accounts/{account_id}/orders",
+  {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer YOUR_ACCESS_TOKEN",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      instrument: "ins_xyz789",
+      order_type: "market",
+      side: "buy",
+      cash_amount: "100.00",
+    }),
+  }
+);
+const order = await response.json();
+```
+
+```go Go
+package main
+
+import (
+	"bytes"
+	"encoding/json"
+	"net/http"
+)
+
+func main() {
+	body, _ := json.Marshal(map[string]string{
+		"instrument":  "ins_xyz789",
+		"order_type":  "market",
+		"side":        "buy",
+		"cash_amount": "100.00",
+	})
+
+	req, _ := http.NewRequest("POST",
+		"https://api.engine.usesophic.com/accounts/{account_id}/orders",
+		bytes.NewBuffer(body))
+	req.Header.Set("Authorization", "Bearer YOUR_ACCESS_TOKEN")
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, _ := http.DefaultClient.Do(req)
+	defer resp.Body.Close()
+
+	var order map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&order)
+}
+```
+
+```java Java
+HttpClient client = HttpClient.newHttpClient();
+String json = """
+    {
+        "instrument": "ins_xyz789",
+        "order_type": "market",
+        "side": "buy",
+        "cash_amount": "100.00"
+    }
+    """;
+
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api.engine.usesophic.com/accounts/{account_id}/orders"))
+    .header("Authorization", "Bearer YOUR_ACCESS_TOKEN")
+    .header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString(json))
+    .build();
+
+HttpResponse<String> response = client.send(request,
+    HttpResponse.BodyHandlers.ofString());
+```
+
+```csharp C#
+using var client = new HttpClient();
+client.DefaultRequestHeaders.Add("Authorization", "Bearer YOUR_ACCESS_TOKEN");
+
+var payload = new {
+    instrument = "ins_xyz789",
+    order_type = "market",
+    side = "buy",
+    cash_amount = "100.00"
+};
+
+var response = await client.PostAsJsonAsync(
+    "https://api.engine.usesophic.com/accounts/{account_id}/orders",
+    payload);
+```
+</CodeGroup>
+
+### Sell orders
+
+Sell orders are **unit-based** — you specify how many units to sell, not how much cash to receive.
+
+<CodeGroup>
+```python Python
+import requests
+
+response = requests.post(
+    "https://api.engine.usesophic.com/accounts/{account_id}/orders",
+    headers={
+        "Authorization": "Bearer YOUR_ACCESS_TOKEN",
+        "Content-Type": "application/json",
+    },
+    json={
+        "instrument": "ins_xyz789",
+        "order_type": "market",
+        "side": "sell",
+        "quantity": "10",
+    },
+)
+order = response.json()
+```
+
+```javascript Node.js
+const response = await fetch(
+  "https://api.engine.usesophic.com/accounts/{account_id}/orders",
+  {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer YOUR_ACCESS_TOKEN",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      instrument: "ins_xyz789",
+      order_type: "market",
+      side: "sell",
+      quantity: "10",
+    }),
+  }
+);
+const order = await response.json();
+```
+
+```go Go
+package main
+
+import (
+	"bytes"
+	"encoding/json"
+	"net/http"
+)
+
+func main() {
+	body, _ := json.Marshal(map[string]string{
+		"instrument": "ins_xyz789",
+		"order_type": "market",
+		"side":       "sell",
+		"quantity":   "10",
+	})
+
+	req, _ := http.NewRequest("POST",
+		"https://api.engine.usesophic.com/accounts/{account_id}/orders",
+		bytes.NewBuffer(body))
+	req.Header.Set("Authorization", "Bearer YOUR_ACCESS_TOKEN")
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, _ := http.DefaultClient.Do(req)
+	defer resp.Body.Close()
+
+	var order map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&order)
+}
+```
+
+```java Java
+HttpClient client = HttpClient.newHttpClient();
+String json = """
+    {
+        "instrument": "ins_xyz789",
+        "order_type": "market",
+        "side": "sell",
+        "quantity": "10"
+    }
+    """;
+
+HttpRequest request = HttpRequest.newBuilder()
+    .uri(URI.create("https://api.engine.usesophic.com/accounts/{account_id}/orders"))
+    .header("Authorization", "Bearer YOUR_ACCESS_TOKEN")
+    .header("Content-Type", "application/json")
+    .POST(HttpRequest.BodyPublishers.ofString(json))
+    .build();
+
+HttpResponse<String> response = client.send(request,
+    HttpResponse.BodyHandlers.ofString());
+```
+
+```csharp C#
+using var client = new HttpClient();
+client.DefaultRequestHeaders.Add("Authorization", "Bearer YOUR_ACCESS_TOKEN");
+
+var payload = new {
+    instrument = "ins_xyz789",
+    order_type = "market",
+    side = "sell",
+    quantity = "10"
+};
+
+var response = await client.PostAsJsonAsync(
+    "https://api.engine.usesophic.com/accounts/{account_id}/orders",
+    payload);
+```
+</CodeGroup>
+
+### Request body
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `instrument` | string | Yes | The ID of the instrument to buy or sell. |
+| `order_type` | string | Yes | The order type. Only `market` is supported. |
+| `side` | string | Yes | `buy` or `sell`. |
+| `cash_amount` | string | Buy orders | The amount to invest before fees. Buy orders are cash-based. Must be greater than 0. |
+| `quantity` | string | Sell orders | The number of units to sell. Sell orders are unit-based. Must be greater than 0. |
+| `automatic_rollover` | boolean | No | If `true`, the resulting position will automatically roll over upon maturity. Only applicable to buy orders on instruments that support it. Defaults to `false`. |
+
+<Warning>
+Buy orders require `cash_amount`. Sell orders require `quantity`. At least one of the two must be provided, and the value must be greater than zero.
+</Warning>
+
+## The response
+
+A successful request returns `201 Created` with the order object:
+
+```json
+{
+  "id": "ord_m4k7r9s2",
+  "account": "acc_abc123",
+  "status": "placed",
+  "order_type": "market",
+  "purpose": "user_request",
+  "position": null,
+  "side": "buy",
+  "instrument": {
+    "id": "ins_xyz789",
+    "instrument_type": "bond",
+    "symbol": "KE2024A",
+    "name": "Kenya 2024 Bond A"
+  },
+  "cash_amount": "100.00",
+  "net_cash_amount": "99.50",
+  "traded_quantity": "0",
+  "traded_notional": "0",
+  "fees": "0.50",
+  "quantity": null,
+  "currency": "USD",
+  "automatic_rollover": false,
+  "cancelled_reason": null,
+  "filled_at": null,
+  "settled_at": null,
+  "cancelled_at": null,
+  "trades": [],
+  "created_at": "2026-03-12T14:30:00Z",
+  "modified_at": "2026-03-12T14:30:00Z"
+}
+```
+
+Key fields to note:
+
+- **`status`** starts at `placed`. See the [order lifecycle](/docs/orders/lifecycle) for how it progresses.
+- **`position`** is `null` until the order is executed — it gets populated when a trade is recorded.
+- **`traded_quantity`** and **`traded_notional`** are `"0"` initially and increase as trades execute.
+- **`fees`** reflects the total fee amount for this order.
+- **`net_cash_amount`** is the amount that actually gets traded (cash amount minus fees).
+- **`trades`** is an empty array until execution happens.
+- **`purpose`** is set by us. Orders you place through the API will always have `user_request`.
+
+<Note>
+Order creation is synchronous — we validate the request and return the order immediately. Everything after that (execution, settlement) happens asynchronously. Use [webhooks](/docs/webhooks/overview) or poll the [Retrieve order](/api-reference/retrieve-an-order) endpoint to track progress.
+</Note>
+
+## Retrieving orders
+
+You can check an order's current status at any time:
+
+```bash
+curl https://api.engine.usesophic.com/accounts/{account_id}/orders/{order_id} \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+To list all orders for an account, use the [List orders](/api-reference/list-orders) endpoint. To list only orders that haven't reached a terminal state, use the [List pending orders](/api-reference/list-pending-orders) endpoint — this is useful for building dashboards or monitoring active trades.

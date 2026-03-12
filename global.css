@@ -1,0 +1,11 @@
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+[data-radix-scroll-area-viewport] pre,
+pre,
+.code-group {
+  border-color: #E2E8F0 !important;
+}

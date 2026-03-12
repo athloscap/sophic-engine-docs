@@ -50,6 +50,15 @@
             ]
           },
           {
+            "group": "Orders",
+            "pages": [
+              "docs/orders/overview",
+              "docs/orders/lifecycle",
+              "docs/orders/errors",
+              "docs/orders/best-practices"
+            ]
+          },
+          {
             "group": "Webhooks",
             "pages": [
               "docs/webhooks/overview",

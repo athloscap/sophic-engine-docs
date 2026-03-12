@@ -1,0 +1,59 @@
+---
+title: Errors
+description: "Common errors when placing orders and how to handle them"
+---
+
+When an order request fails, we return an error response with a machine-readable `code` and a human-readable `detail` message:
+
+```json
+{
+  "code": "insufficient_funds",
+  "detail": "The account does not have sufficient cash to cover this order."
+}
+```
+
+## Validation errors
+
+These errors are returned synchronously when you place the order. The order is **not created**.
+
+| Code | HTTP Status | Description | What to do |
+|---|---|---|---|
+| `not_found` | 400 | The instrument doesn't exist. | Double-check the instrument ID via the [instruments endpoint](/api-reference/get-instruments). |
+| `instrument_not_trading` | 400 | The instrument isn't currently tradable (e.g. market is closed or the instrument is suspended). | Retry later, or check the instrument's status via the [catalog](/api-reference/get-instrument). |
+| `invalid_param` | 400 | A request parameter is invalid — for example, a negative `cash_amount`, a zero `quantity`, or an invalid `order_type`. | Check the request body against the [expected schema](/docs/orders/overview#request-body). |
+| `currency_not_supported` | 400 | The instrument can't be traded in the requested currency. | Check which currencies the instrument supports. |
+| `insufficient_funds` | 400 | The account doesn't have enough cash to cover the buy order. | Check the account's [cash balance](/api-reference/get-cash-balances) before placing the order. |
+| `insufficient_units` | 400 | The account doesn't hold enough units to sell. | Check the account's [positions](/api-reference/get-positions) before placing the order. |
+
+## Permission errors
+
+These errors indicate the account or user isn't allowed to perform the requested action.
+
+| Code | HTTP Status | Description | What to do |
+|---|---|---|---|
+| `buy_order_forbidden` | 403 | Buy orders aren't enabled for this account. | Contact support to enable buy orders. |
+| `sell_order_forbidden` | 403 | Sell orders aren't enabled for this account. | Contact support to enable sell orders. |
+| `professional_trader_required` | 403 | This instrument requires the account holder to be classified as a professional trader. | Ensure the account meets the professional trader requirements. |
+
+## Error response format
+
+All error responses follow the same structure:
+
+```json
+{
+  "code": "instrument_not_trading",
+  "detail": "The instrument is not currently tradable.",
+  "docs": "https://docs.engine.usesophic.com/api-reference/errors",
+  "context": {
+    "instrument_id": "ins_xyz789"
+  }
+}
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `code` | string | A machine-readable error code. |
+| `detail` | string | A human-readable description of the error. |
+| `docs` | string | A URL to documentation about this error code. May be absent. |
+| `context` | object | Extra context about the error (e.g. which parameter failed). May be absent. |
+| `params` | array | A list of parameters that failed validation. Only present for validation errors. |
