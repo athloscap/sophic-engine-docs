@@ -259,7 +259,7 @@ var response = await client.PostAsJsonAsync(
 | `side` | string | Yes | `buy` or `sell`. |
 | `cash_amount` | string | Buy orders | The amount to invest before fees. Buy orders are cash-based. Must be greater than 0. |
 | `quantity` | string | Sell orders | The number of units to sell. Sell orders are unit-based. Must be greater than 0. |
-| `automatic_rollover` | boolean | No | If `true`, the resulting position will automatically roll over upon maturity. Only applicable to buy orders on instruments that support it. Defaults to `false`. |
+| `automatic_rollover` | boolean | No | If `true`, the resulting position will automatically [roll over](/docs/orders/rollovers) upon maturity. Only applicable to buy orders on instruments that support it. Defaults to `false`. |
 
 <Warning>
 Buy orders require `cash_amount`. Sell orders require `quantity`. At least one of the two must be provided, and the value must be greater than zero.
